@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpecFlow Studio V1.1 - Local First AI Orchestrator</title>
+    <title>SpecFlow Studio V1.1 - Responsivo Local First</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,18 +18,26 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #111827; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-        .split-col { height: calc(100vh - 180px); }
+        
+        /* Oculta barra de rolagem no menu horizontal mobile */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Em telas grandes (md+), trava a altura para o modo split-view. No mobile, libera altura. */
+        @media (min-width: 768px) {
+            .split-col { height: calc(100vh - 180px); }
+        }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen flex flex-col overflow-hidden">
 
     <!-- TELA 1: ESTADO INICIAL (CONNECT) -->
     <div id="screen-connect" class="flex-1 flex flex-col items-center justify-center p-6 z-10 absolute inset-0 bg-gray-950">
-        <div class="max-w-md w-full bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-2xl text-center">
+        <div class="max-w-md w-full bg-gray-900 border border-gray-800 rounded-xl p-6 md:p-8 shadow-2xl text-center">
             <div class="text-4xl mb-4">🧭</div>
             <h1 class="text-2xl font-bold text-white mb-2">SpecFlow Studio</h1>
             <p class="text-gray-400 text-sm mb-8">[ V1.1 - AI Prompt Engine ]</p>
@@ -37,7 +45,7 @@
             <div id="btn-open-folder" class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors cursor-pointer bg-gray-800/30">
                 <h2 class="text-lg font-semibold text-gray-200 mb-2">📂 CONECTAR PROJETO</h2>
                 <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do repositório para iniciar a esteira.</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg w-full md:w-auto">
                     📂 Selecionar Pasta
                 </button>
             </div>
@@ -51,89 +59,90 @@
     <!-- TELA 2: DASHBOARD PRINCIPAL -->
     <div id="screen-main" class="hidden flex-1 flex flex-col h-full opacity-0 transition-opacity duration-500">
         
-        <!-- HEADER -->
-        <header class="bg-gray-900 border-b border-gray-800 h-14 flex items-center justify-between px-4 shrink-0 shadow-sm">
+        <!-- HEADER RESPONSIVO -->
+        <header class="bg-gray-900 border-b border-gray-800 flex flex-col md:flex-row md:items-center justify-between p-4 shrink-0 shadow-sm gap-4 md:gap-0">
             <div class="flex items-center gap-3 text-sm">
                 <span class="text-xl">🧭</span>
                 <span class="font-bold text-white tracking-wide">SpecFlow Studio</span>
-                <span class="text-gray-600 px-2">|</span>
-                <span class="text-gray-400">📂 <span id="lbl-folder-name" class="text-gray-200 font-medium">/</span></span>
+                <span class="text-gray-600 px-2 hidden md:inline">|</span>
+                <span class="text-gray-400 text-xs md:text-sm">📂 <span id="lbl-folder-name" class="text-gray-200 font-medium">/</span></span>
             </div>
             
-            <div class="flex items-center gap-4 text-sm">
-                <div class="flex items-center gap-2">
-                    <label class="text-gray-400">IA Alvo:</label>
-                    <select id="select-target-ai" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 text-sm w-full md:w-auto">
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <label class="text-gray-400 whitespace-nowrap">IA Alvo:</label>
+                    <select id="select-target-ai" class="flex-1 md:flex-none bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500">
                         <option value="m365-copilot">M365 Copilot</option>
                         <option value="gemini">Google Gemini</option>
                         <option value="deepseek">DeepSeek</option>
                         <option value="copilot-free">Copilot Free</option>
                     </select>
                 </div>
-                <div class="flex items-center gap-2">
-                    <label class="text-gray-400">Feature:</label>
-                    <select id="select-active-feature" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500"></select>
+                <div class="flex items-center gap-2 w-full md:w-auto">
+                    <label class="text-gray-400 whitespace-nowrap">Feature:</label>
+                    <select id="select-active-feature" class="flex-1 md:flex-none bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500"></select>
                 </div>
             </div>
         </header>
 
-        <!-- MAIN LAYOUT -->
-        <main class="flex-1 flex overflow-hidden">
-            <!-- SIDEBAR: ESTAÇÕES -->
-            <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
-                <div class="p-4 border-b border-gray-800">
-                    <h3 class="text-xs font-bold text-gray-500 tracking-wider mb-3">ESTAÇÕES DA JORNADA</h3>
-                    <ul id="sidebar-stations" class="space-y-1 text-sm text-gray-400">
+        <!-- MAIN LAYOUT RESPONSIVO (Flex-col no mobile, flex-row no desktop) -->
+        <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            
+            <!-- SIDEBAR RESPONSIVA -->
+            <aside class="w-full md:w-64 bg-gray-900 border-b md:border-r border-gray-800 flex flex-col shrink-0">
+                <div class="p-3 md:p-4">
+                    <h3 class="text-xs font-bold text-gray-500 tracking-wider mb-2 md:mb-3 hidden md:block">ESTAÇÕES DA JORNADA</h3>
+                    <!-- No mobile, é um menu horizontal deslizável -->
+                    <ul id="sidebar-stations" class="flex md:block flex-row overflow-x-auto no-scrollbar md:space-y-1 text-sm text-gray-400 gap-2 md:gap-0 pb-1 md:pb-0 whitespace-nowrap">
                         <!-- Injetado via JS -->
                     </ul>
                 </div>
-                <div class="p-4 mt-auto border-t border-gray-800">
-                    <p class="text-xs text-gray-500 leading-tight">Mecanismo de Persistência:<br><span class="text-green-500 font-medium">FileSystem Access API</span></p>
+                <div class="p-4 mt-auto border-t border-gray-800 hidden md:block">
+                    <p class="text-xs text-gray-500 leading-tight">Persistência:<br><span class="text-green-500 font-medium">FileSystem API</span></p>
                 </div>
             </aside>
 
-            <!-- CONTEÚDO CENTRAL -->
-            <section class="flex-1 flex flex-col min-w-0 bg-gray-950 p-6 overflow-y-auto">
+            <!-- CONTEÚDO CENTRAL (Rola nativamente no mobile) -->
+            <section class="flex-1 flex flex-col min-w-0 bg-gray-950 p-4 md:p-6 overflow-y-auto">
                 
                 <header class="mb-4">
-                    <h2 id="lbl-station-title" class="text-xl font-bold text-white flex items-center gap-2">📍 ESTAÇÃO X</h2>
-                    <p id="lbl-station-desc" class="text-sm text-gray-500 mt-1">Descrição da estação.</p>
+                    <h2 id="lbl-station-title" class="text-lg md:text-xl font-bold text-white flex items-center gap-2">📍 ESTAÇÃO X</h2>
+                    <p id="lbl-station-desc" class="text-xs md:text-sm text-gray-500 mt-1">Descrição da estação.</p>
                 </header>
 
-                <!-- VIEW A: FÁBRICA DE PROMPTS (Estações 1 a 5 - SPLIT VIEW) -->
-                <div id="view-prompt-factory" class="hidden flex-1 flex gap-4 h-full">
+                <!-- VIEW A: FÁBRICA DE PROMPTS (SPLIT VIEW NO DESKTOP, EMPILHADO NO MOBILE) -->
+                <div id="view-prompt-factory" class="hidden flex-1 flex-col md:flex-row gap-4 h-auto md:h-full">
                     
                     <!-- Coluna 1: Input do Usuário -->
-                    <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
-                        <div class="bg-gray-850 px-4 py-2 border-b border-gray-800">
+                    <div class="w-full md:w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden min-h-[250px] md:min-h-0 split-col shadow-lg">
+                        <div class="bg-gray-850 px-3 md:px-4 py-2 border-b border-gray-800">
                             <h3 class="text-xs font-bold text-gray-300 tracking-wider">1. SEU INPUT BRUTO</h3>
                         </div>
-                        <textarea id="txt-user-input" class="flex-1 w-full bg-gray-900 text-gray-200 p-4 text-sm resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Escreva sua ideia, premissas ou respostas aqui..."></textarea>
+                        <textarea id="txt-user-input" class="flex-1 w-full bg-gray-900 text-gray-200 p-3 md:p-4 text-sm resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Escreva sua ideia, premissas ou respostas aqui..."></textarea>
                     </div>
 
                     <!-- Coluna 2: Prompt Gerado -->
-                    <div class="w-1/3 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
-                        <div class="bg-blue-950/30 px-4 py-2 border-b border-blue-900/50 flex justify-between items-center">
-                            <h3 class="text-xs font-bold text-blue-400 tracking-wider">2. PROMPT GERADO (SPA)</h3>
-                            <span class="text-[10px] bg-blue-900/50 text-blue-200 px-2 py-0.5 rounded">Auto-Injetado</span>
+                    <div class="w-full md:w-1/3 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden min-h-[300px] md:min-h-0 split-col shadow-lg">
+                        <div class="bg-blue-950/30 px-3 md:px-4 py-2 border-b border-blue-900/50 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-blue-400 tracking-wider">2. PROMPT GERADO</h3>
                         </div>
-                        <textarea id="txt-station-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-400 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
+                        <textarea id="txt-station-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-400 p-3 md:p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
                         <div class="p-2 bg-gray-850 border-t border-gray-800">
-                            <button id="btn-copy-station-prompt" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 rounded transition-colors flex justify-center items-center gap-2">
+                            <button id="btn-copy-station-prompt" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-3 md:py-2 rounded transition-colors flex justify-center items-center gap-2">
                                 📋 COPIAR PROMPT PARA A IA
                             </button>
                         </div>
                     </div>
 
                     <!-- Coluna 3: Resultado da IA / Editor Final -->
-                    <div class="w-1/3 flex flex-col border border-green-900/50 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
-                        <div class="bg-green-950/30 px-4 py-2 border-b border-green-900/50 flex justify-between items-center">
+                    <div class="w-full md:w-1/3 flex flex-col border border-green-900/50 rounded-lg bg-gray-900 overflow-hidden min-h-[300px] md:min-h-0 split-col shadow-lg">
+                        <div class="bg-green-950/30 px-3 md:px-4 py-2 border-b border-green-900/50 flex justify-between items-center">
                             <h3 class="text-xs font-bold text-green-400 tracking-wider">3. ARTEFATO FINAL</h3>
                             <span id="lbl-artifact-name" class="text-[10px] text-green-500">arquivo.md</span>
                         </div>
-                        <textarea id="txt-ai-response" class="flex-1 w-full bg-gray-900 text-green-50 p-4 text-sm font-mono resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Cole a resposta da IA (Markdown) aqui para salvar..."></textarea>
+                        <textarea id="txt-ai-response" class="flex-1 w-full bg-gray-900 text-green-50 p-3 md:p-4 text-sm font-mono resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Cole a resposta da IA (Markdown) aqui para salvar..."></textarea>
                         <div class="p-2 bg-gray-850 border-t border-gray-800">
-                            <button id="btn-save-station" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-bold py-2 rounded transition-colors flex justify-center items-center gap-2">
+                            <button id="btn-save-station" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-bold py-3 md:py-2 rounded transition-colors flex justify-center items-center gap-2">
                                 💾 SALVAR NO DISCO
                             </button>
                         </div>
@@ -142,9 +151,10 @@
 
                 <!-- VIEW B: ESTAÇÃO 6 (IMPLEMENTAÇÃO) -->
                 <div id="view-implement" class="hidden flex-1 flex-col h-full">
+                    
                     <!-- PROGRESSO -->
                     <div class="mb-4">
-                        <div class="flex justify-between text-sm mb-2">
+                        <div class="flex justify-between text-xs md:text-sm mb-2">
                             <span class="text-gray-400 font-medium">PROGRESSO DO CÓDIGO</span>
                             <span id="lbl-progress-text" class="text-blue-400 font-bold">0% (0/0 Tarefas)</span>
                         </div>
@@ -153,9 +163,11 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-4 h-full split-col">
+                    <!-- Layout: Checklist vs Código (Empilhado no Mobile, Lado a Lado Desktop) -->
+                    <div class="flex flex-col md:flex-row gap-4 h-auto md:h-full split-col">
+                        
                         <!-- CHECKLIST -->
-                        <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden shadow-lg">
+                        <div class="w-full md:w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden shadow-lg min-h-[200px] md:min-h-0">
                             <div class="bg-gray-850 px-4 py-2 border-b border-gray-800">
                                 <h3 class="text-xs font-bold text-gray-400 tracking-wider">CHECKLIST (tasks.md)</h3>
                             </div>
@@ -163,15 +175,17 @@
                         </div>
 
                         <!-- PROMPT DE IMPLEMENTAÇÃO -->
-                        <div class="flex-1 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden shadow-lg">
+                        <div class="w-full md:flex-1 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden shadow-lg min-h-[350px] md:min-h-0">
                             <div class="bg-blue-950/30 px-4 py-2 border-b border-blue-900/50 flex justify-between items-center">
                                 <h3 class="text-xs font-bold text-blue-400 tracking-wider">PROMPT DE CÓDIGO (CONTEXTO MÍNIMO)</h3>
                             </div>
-                            <textarea id="txt-generated-prompt-code" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
-                            <div class="bg-gray-850 px-4 py-3 border-t border-gray-800 flex gap-2">
-                                <button id="btn-copy-code-prompt" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold py-2 rounded">📋 COPIAR</button>
-                                <button id="btn-rescue-cut" class="flex-1 bg-yellow-900/40 hover:bg-yellow-800/80 text-yellow-500 text-sm font-bold py-2 rounded border border-yellow-700/50">🆘 IA CORTOU</button>
-                                <button id="btn-complete-task" disabled class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold py-2 rounded">🎯 MARCAR [X]</button>
+                            <textarea id="txt-generated-prompt-code" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-3 md:p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
+                            
+                            <!-- Botões de Ação da Estação 6 -->
+                            <div class="bg-gray-850 px-3 md:px-4 py-3 border-t border-gray-800 flex flex-col md:flex-row gap-2">
+                                <button id="btn-copy-code-prompt" class="w-full md:flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold py-3 md:py-2 rounded">📋 COPIAR</button>
+                                <button id="btn-rescue-cut" class="w-full md:flex-1 bg-yellow-900/40 hover:bg-yellow-800/80 text-yellow-500 text-sm font-bold py-3 md:py-2 rounded border border-yellow-700/50">🆘 IA CORTOU</button>
+                                <button id="btn-complete-task" disabled class="w-full md:flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold py-3 md:py-2 rounded">🎯 MARCAR [X]</button>
                             </div>
                         </div>
                     </div>
@@ -191,7 +205,7 @@
             { id: 3, title: 'Tirando Dúvidas', desc: 'A IA atua como QA apontando falhas na especificação.', file: 'spec.md', path: 'feature', icon: '❓', placeholder: 'Responda as perguntas da IA aqui para refinar o spec.md. Se vazio, a IA apenas fará as perguntas.' },
             { id: 4, title: 'Desenho Técnico', desc: 'Mapeamento de funções, DOM e LocalStorage.', file: 'plan.md', path: 'feature', icon: '📐', placeholder: 'Adicione observações técnicas extras ou apenas gere o plano.' },
             { id: 5, title: 'Lista de Tarefas', desc: 'Quebra do escopo em checklist atômico.', file: 'tasks.md', path: 'feature', icon: '✅', placeholder: 'Deixe em branco para geração automática ou insira restrições de ordem.' },
-            { id: 6, title: 'Mão na Massa', desc: 'Geração de prompts iterativos de código baseados nas tasks.', file: 'implement', path: 'special', icon: '👉', placeholder: '' }
+            { id: 6, title: 'Mão na Massa', desc: 'Geração de prompts iterativos de código.', file: 'implement', path: 'special', icon: '👉', placeholder: '' }
         ];
 
         const AppState = {
@@ -203,7 +217,7 @@
             activeFeature: {
                 id: '',
                 files: { 'spec.md': '', 'plan.md': '', 'tasks.md': '' },
-                inputs: { 1: '', 2: '', 3: '', 4: '', 5: '' }, // Cache do input do usuário por estação
+                inputs: { 1: '', 2: '', 3: '', 4: '', 5: '' },
                 tasksParsed: []
             },
             activeTaskId: null
@@ -217,11 +231,9 @@
             selectActiveFeature: document.getElementById('select-active-feature'),
             sidebarStations: document.getElementById('sidebar-stations'),
             
-            // Cabeçalho da Estação
             lblStationTitle: document.getElementById('lbl-station-title'),
             lblStationDesc: document.getElementById('lbl-station-desc'),
             
-            // View A: Fábrica
             viewPromptFactory: document.getElementById('view-prompt-factory'),
             txtUserInput: document.getElementById('txt-user-input'),
             txtStationPrompt: document.getElementById('txt-station-prompt'),
@@ -230,7 +242,6 @@
             btnSaveStation: document.getElementById('btn-save-station'),
             lblArtifactName: document.getElementById('lbl-artifact-name'),
 
-            // View B: Implementação
             viewImplement: document.getElementById('view-implement'),
             containerTasks: document.getElementById('container-tasks'),
             lblProgressText: document.getElementById('lbl-progress-text'),
@@ -280,7 +291,6 @@
                 const specifyDir = await getOrCreateDir(AppState.directoryHandle, '.specify');
                 const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
 
-                // Lê Configuração e Constituição Global
                 AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md');
                 let configRaw = await readSafe(specifyDir, 'config.json');
                 
@@ -291,14 +301,13 @@
                 }
                 DOM.selectTargetAI.value = AppState.projectConfig.targetAI || 'm365-copilot';
 
-                // Escaneia Features
                 AppState.features = [];
                 for await (const entry of specsDir.values()) {
                     if (entry.kind === 'directory') AppState.features.push(entry.name);
                 }
 
                 if (AppState.features.length === 0) {
-                    const mockDir = await getOrCreateDir(specsDir, '001-nova-feature');
+                    await getOrCreateDir(specsDir, '001-nova-feature');
                     AppState.features.push('001-nova-feature');
                 }
 
@@ -308,7 +317,6 @@
                 
                 await loadFeatureData(activeId);
 
-                // Mostra Workspace
                 DOM.screenConnect.classList.add('hidden');
                 DOM.screenMain.classList.remove('hidden');
                 setTimeout(() => DOM.screenMain.classList.remove('opacity-0'), 50);
@@ -334,16 +342,15 @@
         }
 
         // ==========================================
-        // 4. MOTOR ATIVO DE PROMPTS (ESTAÇÕES 1 A 5)
+        // 4. MOTOR ATIVO DE PROMPTS
         // ==========================================
         function switchStation(stepId) {
             AppState.activeStep = stepId;
             const station = STATIONS.find(s => s.id === stepId);
             
-            // Atualiza Sidebar
             DOM.sidebarStations.innerHTML = STATIONS.map(s => `
-                <li><button onclick="switchStation(${s.id})" class="w-full text-left px-3 py-2 rounded flex gap-2 transition-colors ${AppState.activeStep === s.id ? 'bg-gray-800 text-white font-bold border-l-2 border-blue-500' : 'hover:bg-gray-800/50'}">
-                    <span>${s.icon}</span> ${s.id}. ${s.title}
+                <li><button onclick="switchStation(${s.id})" class="text-left px-3 py-2 rounded flex items-center gap-2 transition-colors ${AppState.activeStep === s.id ? 'bg-gray-800 text-white font-bold md:border-l-2 md:border-blue-500' : 'hover:bg-gray-800/50'}">
+                    <span>${s.icon}</span> <span class="md:inline">${s.id}. ${s.title}</span>
                 </button></li>
             `).join('');
 
@@ -359,11 +366,9 @@
                 DOM.viewPromptFactory.classList.remove('hidden');
                 DOM.lblArtifactName.textContent = station.file;
                 
-                // Restaura Cache de Input
                 DOM.txtUserInput.value = AppState.activeFeature.inputs[stepId] || '';
                 DOM.txtUserInput.placeholder = station.placeholder;
                 
-                // Carrega o Artefato Final salvo (se houver)
                 DOM.txtAiResponse.value = station.path === '.specify' ? AppState.constitutionContent : AppState.activeFeature.files[station.file];
                 
                 updatePromptEngine();
@@ -379,25 +384,14 @@
             
             let prompt = "";
 
-            if (stepId === 1) {
-                prompt = `Atue como um Arquiteto de Software Staff. Crie o arquivo constitution.md definindo as regras inquebráveis, padrões de nomenclatura e stack tecnológica baseados nestas premissas:\n\n${input}\n\nFormate a saída exclusivamente em Markdown, sem textos introdutórios.`;
-            } 
-            else if (stepId === 2) {
-                prompt = `Atue como um Product Manager. Transforme a ideia inicial em um Documento de Especificação (spec.md). Inclua o objetivo, as histórias de usuário principais e os critérios de aceite. Respeite estritamente as regras definidas na Constituição abaixo:\n\n[CONSTITUIÇÃO DO PROJETO]\n${constitution}\n\n[IDEIA DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
-            }
+            if (stepId === 1) prompt = `Atue como um Arquiteto de Software Staff. Crie o arquivo constitution.md definindo as regras inquebráveis, padrões de nomenclatura e stack tecnológica baseados nestas premissas:\n\n${input}\n\nFormate a saída exclusivamente em Markdown, sem textos introdutórios.`;
+            else if (stepId === 2) prompt = `Atue como um Product Manager. Transforme a ideia inicial em um Documento de Especificação (spec.md). Inclua o objetivo, as histórias de usuário principais e os critérios de aceite. Respeite estritamente as regras definidas na Constituição abaixo:\n\n[CONSTITUIÇÃO DO PROJETO]\n${constitution}\n\n[IDEIA DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
             else if (stepId === 3) {
-                if (input) {
-                    prompt = `Atue como um QA e Product Manager. Com base nas minhas respostas abaixo, atualize e reescreva o Documento de Especificação (spec.md) resolvendo as lacunas e ambiguidades:\n\n[ESPECIFICAÇÃO ATUAL]\n${spec}\n\n[MINHAS RESPOSTAS PARA REFINAMENTO]\n${input}\n\nGere o spec.md atualizado em Markdown.`;
-                } else {
-                    prompt = `Atue como um Engenheiro de Software QA altamente crítico. Leia a especificação abaixo e liste as 5 principais lacunas, ambiguidades ou casos de borda que não foram previstos (ex: estados de erro, falha de rede, limite de dados). Faça perguntas diretas para que eu possa responder e refinar o escopo.\n\n[ESPECIFICAÇÃO]\n${spec}`;
-                }
+                if (input) prompt = `Atue como um QA e Product Manager. Com base nas minhas respostas abaixo, atualize e reescreva o Documento de Especificação (spec.md) resolvendo as lacunas e ambiguidades:\n\n[ESPECIFICAÇÃO ATUAL]\n${spec}\n\n[MINHAS RESPOSTAS PARA REFINAMENTO]\n${input}\n\nGere o spec.md atualizado em Markdown.`;
+                else prompt = `Atue como um Engenheiro de Software QA altamente crítico. Leia a especificação abaixo e liste as 5 principais lacunas, ambiguidades ou casos de borda que não foram previstos (ex: estados de erro, falha de rede, limite de dados). Faça perguntas diretas para que eu possa responder e refinar o escopo.\n\n[ESPECIFICAÇÃO]\n${spec}`;
             }
-            else if (stepId === 4) {
-                prompt = `Atue como um Arquiteto de Sistemas Sênior. Com base na Especificação, crie o plano técnico (plan.md). Defina a estrutura do DOM, as chaves e esquemas do LocalStorage, o estado da aplicação (AppState) e a assinatura das funções JavaScript necessárias.\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
-            }
-            else if (stepId === 5) {
-                prompt = `Com base na arquitetura definida, quebre o desenvolvimento em um checklist estritamente sequencial e atômico (tasks.md). Cada tarefa deve ser pequena e isolada.\nUse o formato OBRIGATÓRIO: "- [ ] [T-XXX] Descrição da tarefa".\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[PLANO TÉCNICO]\n${plan}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}`;
-            }
+            else if (stepId === 4) prompt = `Atue como um Arquiteto de Sistemas Sênior. Com base na Especificação, crie o plano técnico (plan.md). Defina a estrutura do DOM, as chaves e esquemas do LocalStorage, o estado da aplicação (AppState) e a assinatura das funções JavaScript necessárias.\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
+            else if (stepId === 5) prompt = `Com base na arquitetura definida, quebre o desenvolvimento em um checklist estritamente sequencial e atômico (tasks.md). Cada tarefa deve ser pequena e isolada.\nUse o formato OBRIGATÓRIO: "- [ ] [T-XXX] Descrição da tarefa".\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[PLANO TÉCNICO]\n${plan}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}`;
 
             DOM.txtStationPrompt.value = prompt;
         }
@@ -481,7 +475,6 @@
 
             if (!AppState.activeTaskId && firstPendingId) AppState.activeTaskId = firstPendingId;
 
-            // Barra de Progresso
             const total = AppState.activeFeature.tasksParsed.length;
             const pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
             DOM.lblProgressText.textContent = `${pct}% (${completedCount}/${total} Tarefas)`;
@@ -501,7 +494,7 @@
             }
 
             DOM.btnCompleteTask.disabled = false;
-            DOM.btnCompleteTask.textContent = `🎯 MARCAR [${task.id}] CONCLUÍDA`;
+            DOM.btnCompleteTask.textContent = `🎯 MARCAR [${task.id}]`;
 
             const ai = DOM.selectTargetAI.value;
             let directive = ai === 'copilot-free' ? "Escreva código curto, divida se necessário." : 
