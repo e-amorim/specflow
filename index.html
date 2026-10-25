@@ -33,16 +33,16 @@
             <h1 class="text-2xl font-bold text-white mb-2">SpecFlow Studio</h1>
             <p class="text-gray-400 text-sm mb-8">[ V1.0 - Local First ]</p>
             
-            <div class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors">
+            <div class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors cursor-pointer" onclick="initializeProject()">
                 <h2 class="text-lg font-semibold text-gray-200 mb-2">📂 CONECTAR PROJETO</h2>
-                <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do seu repositório para iniciar.</p>
-                <button id="btn-open-folder" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg">
+                <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do repositório para iniciar.</p>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg">
                     📂 Selecionar Pasta
                 </button>
             </div>
             
             <p class="text-xs text-gray-500 flex items-center justify-center gap-2">
-                <span>🔒</span> Seus arquivos nunca saem do seu computador. Processamento 100% local.
+                <span>🔒</span> Seus arquivos nunca saem do computador.
             </p>
         </div>
     </div>
@@ -63,7 +63,7 @@
                 <div class="flex items-center gap-2">
                     <label class="text-gray-400">IA:</label>
                     <select id="select-target-ai" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500">
-                        <option value="m365-copilot">Microsoft 365 Copilot</option>
+                        <option value="m365-copilot">M365 Copilot</option>
                         <option value="gemini">Google Gemini</option>
                         <option value="deepseek">DeepSeek</option>
                         <option value="copilot-free">Copilot Free</option>
@@ -75,7 +75,6 @@
                         <!-- Preenchido via JS -->
                     </select>
                 </div>
-                <button id="btn-reload" class="text-gray-400 hover:text-white" title="Recarregar Dados">🔄</button>
             </div>
         </header>
 
@@ -85,181 +84,146 @@
             <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
                 <div class="p-4 border-b border-gray-800">
                     <h3 class="text-xs font-bold text-gray-500 tracking-wider mb-3">ESTAÇÕES DA JORNADA</h3>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li class="flex items-center gap-2"><span class="text-green-500">✓</span> 1. Regras do Jogo (.specify)</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✓</span> 2. Ideia no Papel (spec.md)</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✓</span> 3. Tirando Dúvidas (/clarify)</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✓</span> 4. Desenho Técnico (plan.md)</li>
-                        <li class="flex items-center gap-2"><span class="text-green-500">✓</span> 5. Lista de Tarefas (tasks.md)</li>
-                        <li class="flex items-center gap-2 text-white font-medium bg-gray-800 -mx-2 px-2 py-1 rounded"><span>👉</span> 6. Mão na Massa (/implement)</li>
+                    <ul id="sidebar-stations" class="space-y-1 text-sm text-gray-400">
+                        <!-- Renderizado via JS -->
                     </ul>
                 </div>
                 
-                <div class="p-4 mt-auto border-t border-gray-800">
-                    <h3 class="text-xs font-bold text-gray-500 tracking-wider mb-3">⚙️ CONFIGURAÇÕES</h3>
-                    <div class="space-y-2 text-sm text-gray-400">
-                        <div class="flex justify-between"><span>Auto-Salvar:</span> <span class="text-green-400">ON</span></div>
-                        <div class="flex justify-between"><span>Sanitizar Segredos:</span> <span class="text-green-400">ON</span></div>
-                    </div>
+                <div class="p-4 mt-auto border-t border-gray-800 text-xs text-gray-500">
+                    Salvamento 100% Local <br>FileSystem Access API
                 </div>
             </aside>
 
-            <!-- CONTEÚDO CENTRAL: ESTAÇÃO 6 -->
+            <!-- CONTAINER CENTRAL -->
             <section class="flex-1 flex flex-col min-w-0 bg-gray-950 p-6 overflow-y-auto">
-                <header class="mb-6">
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        📍 ESTAÇÃO 6: MÃO NA MASSA <span class="text-gray-500 text-sm font-normal">(/implement)</span>
-                    </h2>
-                </header>
+                
+                <!-- VIEW 1: EDITOR MARKDOWN (Estações 1 a 5) -->
+                <div id="view-editor" class="hidden flex-1 flex-col h-full">
+                    <header class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 id="lbl-editor-title" class="text-xl font-bold text-white flex items-center gap-2">
+                                📍 ESTAÇÃO X: Título
+                            </h2>
+                            <p id="lbl-editor-file" class="text-sm text-gray-500 mt-1">/caminho/do/arquivo.md</p>
+                        </div>
+                        <button id="btn-save-file" class="bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-6 rounded transition-colors flex items-center gap-2">
+                            💾 Salvar Arquivo
+                        </button>
+                    </header>
+                    <textarea id="txt-markdown-editor" class="flex-1 w-full bg-gray-900 text-gray-300 p-4 font-mono text-sm border border-gray-800 rounded-lg resize-none focus:outline-none focus:border-blue-500" placeholder="Escreva o markdown aqui..."></textarea>
+                </div>
 
-                <!-- PROGRESSO -->
-                <div class="mb-8">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-gray-400 font-medium">PROGRESSO DA FEATURE</span>
-                        <span id="lbl-progress-text" class="text-blue-400 font-bold">0% (0/0 Tarefas)</span>
+                <!-- VIEW 2: MÃO NA MASSA (Estação 6) -->
+                <div id="view-implement" class="hidden flex-1 flex-col h-full">
+                    <header class="mb-6">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            📍 ESTAÇÃO 6: MÃO NA MASSA <span class="text-gray-500 text-sm font-normal">(/implement)</span>
+                        </h2>
+                    </header>
+
+                    <!-- PROGRESSO -->
+                    <div class="mb-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400 font-medium">PROGRESSO DA FEATURE</span>
+                            <span id="lbl-progress-text" class="text-blue-400 font-bold">0% (0/0 Tarefas)</span>
+                        </div>
+                        <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+                            <div id="bar-progress" class="h-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
+                        </div>
                     </div>
-                    <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
-                        <div id="bar-progress" class="h-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
+
+                    <div class="flex gap-6 h-full min-h-[400px]">
+                        <!-- CHECKLIST -->
+                        <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
+                            <div class="bg-gray-850 px-4 py-2 border-b border-gray-800 flex justify-between">
+                                <h3 class="text-xs font-bold text-gray-400 tracking-wider">CHECKLIST (tasks.md)</h3>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-2 space-y-1" id="container-tasks"></div>
+                        </div>
+
+                        <!-- PROMPT -->
+                        <div class="flex-1 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
+                            <div class="bg-gray-850 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
+                                <h3 class="text-xs font-bold text-blue-400 tracking-wider">PROMPT DE CONTEXTO MÍNIMO</h3>
+                            </div>
+                            <textarea id="txt-generated-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
+                            <div class="bg-gray-850 px-4 py-3 border-t border-gray-800 flex gap-2">
+                                <button id="btn-copy-prompt" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 rounded">📋 COPIAR</button>
+                                <button id="btn-rescue-cut" class="flex-1 bg-yellow-900/50 hover:bg-yellow-800 text-yellow-500 text-sm font-medium py-2 rounded">🆘 A IA CORTOU</button>
+                                <button id="btn-complete-task" disabled class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium py-2 rounded">🎯 CONCLUIR TAREFA</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex gap-6 h-full min-h-[400px]">
-                    <!-- COLUNA ESQUERDA: CHECKLIST -->
-                    <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
-                        <div class="bg-gray-850 px-4 py-2 border-b border-gray-800">
-                            <h3 class="text-xs font-bold text-gray-400 tracking-wider">CHECKLIST DE TAREFAS ATÔMICAS</h3>
-                        </div>
-                        <div class="flex-1 overflow-y-auto p-2" id="container-tasks">
-                            <!-- Tarefas injetadas via JS -->
-                        </div>
-                    </div>
-
-                    <!-- COLUNA DIREITA: PROMPT -->
-                    <div class="flex-1 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
-                        <div class="bg-gray-850 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
-                            <h3 class="text-xs font-bold text-blue-400 tracking-wider">PROMPT DE CONTEXTO MÍNIMO</h3>
-                            <span class="text-xs text-gray-500">Pronto para a IA</span>
-                        </div>
-                        
-                        <textarea id="txt-generated-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-4 text-sm font-mono resize-none focus:outline-none focus:ring-1 focus:ring-gray-700"></textarea>
-                        
-                        <div class="bg-gray-850 px-4 py-3 border-t border-gray-800 flex justify-between items-center gap-2">
-                            <button id="btn-copy-prompt" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center justify-center gap-2">
-                                📋 COPIAR PROMPT
-                            </button>
-                            <button id="btn-rescue-cut" class="bg-yellow-900/50 hover:bg-yellow-800/80 text-yellow-500 border border-yellow-700/50 text-sm font-medium py-2 px-4 rounded transition-colors" title="Use se a IA parar de gerar código na metade">
-                                🆘 A IA CORTOU
-                            </button>
-                            <button id="btn-complete-task" disabled class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium py-2 px-4 rounded transition-colors">
-                                🎯 CONCLUIR TAREFA
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </section>
         </main>
     </div>
 
     <script>
         // ==========================================
-        // 1. ESTADO REATIVO INTERNO (AppState)
+        // 1. DADOS E ESTADO DA APLICAÇÃO
         // ==========================================
+        const STATIONS = [
+            { id: 1, title: 'Regras do Jogo', file: 'constitution.md', path: '.specify', icon: '📜' },
+            { id: 2, title: 'Ideia no Papel', file: 'spec.md', path: 'feature', icon: '💡' },
+            { id: 3, title: 'Tirando Dúvidas', file: 'clarify.md', path: 'feature', icon: '❓' },
+            { id: 4, title: 'Desenho Técnico', file: 'plan.md', path: 'feature', icon: '📐' },
+            { id: 5, title: 'Lista de Tarefas', file: 'tasks.md', path: 'feature', icon: '✅' },
+            { id: 6, title: 'Mão na Massa', file: 'implement', path: 'special', icon: '👉' }
+        ];
+
         const AppState = {
             directoryHandle: null,
-            isConnected: false,
-            activeStep: 6, 
-            settings: {
-                targetAI: 'm365-copilot',
-                autoSave: true
-            },
+            activeStep: 1, 
+            settings: { targetAI: 'm365-copilot' },
             projectConfig: null,
             constitutionContent: '',
             features: [],
             activeFeature: {
                 id: '',
-                spec: '',
-                plan: '',
-                tasks: [],
-                rawTasksMarkdown: ''
+                files: {
+                    'spec.md': '',
+                    'clarify.md': '',
+                    'plan.md': '',
+                    'tasks.md': ''
+                },
+                tasksParsed: []
             },
             activeTaskId: null
         };
 
-        // ==========================================
-        // 2. ALGORITMOS CORE
-        // ==========================================
-        
-        function parseTasksMarkdown(markdownText) {
-            if (!markdownText) return [];
-            const lines = markdownText.split('\n');
-            const tasks = [];
-            const regex = /^-\s*\[([xX\s])\]\s*\[(T-\d+)\]\s*(.+)$/;
+        const DOM = {
+            screenConnect: document.getElementById('screen-connect'),
+            screenMain: document.getElementById('screen-main'),
+            lblFolderName: document.getElementById('lbl-folder-name'),
+            selectTargetAI: document.getElementById('select-target-ai'),
+            selectActiveFeature: document.getElementById('select-active-feature'),
+            sidebarStations: document.getElementById('sidebar-stations'),
+            
+            // Views
+            viewEditor: document.getElementById('view-editor'),
+            viewImplement: document.getElementById('view-implement'),
+            
+            // Editor
+            lblEditorTitle: document.getElementById('lbl-editor-title'),
+            lblEditorFile: document.getElementById('lbl-editor-file'),
+            txtMarkdownEditor: document.getElementById('txt-markdown-editor'),
+            btnSaveFile: document.getElementById('btn-save-file'),
 
-            lines.forEach((line, index) => {
-                const match = line.trim().match(regex);
-                if (match) {
-                    tasks.push({
-                        id: match[2],
-                        completed: match[1].toLowerCase() === 'x',
-                        title: match[3].trim(),
-                        lineIndex: index
-                    });
-                }
-            });
-            return tasks;
-        }
-
-        function serializeTasksToMarkdown(originalMarkdown, tasks) {
-            const lines = originalMarkdown.split('\n');
-            tasks.forEach(task => {
-                const checkSymbol = task.completed ? 'x' : ' ';
-                lines[task.lineIndex] = `- [${checkSymbol}] [${task.id}] ${task.title}`;
-            });
-            return lines.join('\n');
-        }
-
-        function sanitizePrompt(text) {
-            if (!text) return "";
-            // Regex básico para sanitização de chaves de API / Segredos embutidos
-            return text.replace(/(sk-[a-zA-Z0-9]{20,})|(Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*)/g, '[DADO_SENSIVEL_REMOVIDO]');
-        }
-
-        function generatePromptForTask(task, targetAI) {
-            if (!task) return "Selecione uma tarefa pendente para gerar o prompt.";
-
-            const constitution = sanitizePrompt(AppState.constitutionContent) || "Seguir padrões HTML5 e JavaScript Vanilla.";
-            const spec = sanitizePrompt(AppState.activeFeature.spec) || "Sem especificação adicional.";
-            let systemDirective = "";
-
-            switch (targetAI) {
-                case 'm365-copilot':
-                    systemDirective = "RESPONDA APENAS COM CÓDIGO DENTRO DE BLOCOS MARKDOWN. Não inclua textos introdutórios ou conclusões.";
-                    break;
-                case 'deepseek':
-                    systemDirective = "Atue como um programador sênior. Escreva a solução mais direta, limpa e performática em código puro.";
-                    break;
-                case 'gemini':
-                    systemDirective = "Analise o contexto fornecido e execute a tarefa estritamente respeitando as diretrizes de arquitetura.";
-                    break;
-                case 'copilot-free':
-                    systemDirective = "Escreva no máximo 80 linhas de código por resposta. Se o código for longo, divida-o de forma lógica.";
-                    break;
-            }
-
-            return `[DIRETRIZ DA IA]\n${systemDirective}\n\n[CONSTITUIÇÃO DO PROJETO - REGRAS INVIOLÁVEIS]\n${constitution}\n\n[ESPECIFICAÇÃO DA FEATURE]\n${spec}\n\n[TAREFA ATÔMICA EXCLUSIVA PARA EXECUÇÃO AGORA]\nID: ${task.id}\nDescrição: ${task.title}\n\n[INSTRUÇÃO DE SAÍDA]\nGere apenas o código estritamente necessário para concluir a tarefa ${task.id}.`;
-        }
+            // Implementação
+            containerTasks: document.getElementById('container-tasks'),
+            lblProgressText: document.getElementById('lbl-progress-text'),
+            barProgress: document.getElementById('bar-progress'),
+            txtGeneratedPrompt: document.getElementById('txt-generated-prompt'),
+            btnCopyPrompt: document.getElementById('btn-copy-prompt'),
+            btnRescueCut: document.getElementById('btn-rescue-cut'),
+            btnCompleteTask: document.getElementById('btn-complete-task')
+        };
 
         // ==========================================
-        // 3. FILE SYSTEM ACCESS API WRAPPERS
+        // 2. FILE SYSTEM UTILS (API NATIVA)
         // ==========================================
-        
-        async function verifyPermission(fileHandle, readWrite = true) {
-            const options = { mode: readWrite ? 'readwrite' : 'read' };
-            if ((await fileHandle.queryPermission(options)) === 'granted') return true;
-            if ((await fileHandle.requestPermission(options)) === 'granted') return true;
-            return false;
-        }
-
         async function getOrCreateDir(parentHandle, dirName) {
             return await parentHandle.getDirectoryHandle(dirName, { create: true });
         }
@@ -268,281 +232,308 @@
             return await dirHandle.getFileHandle(fileName, { create: true });
         }
 
-        async function readFile(fileHandle) {
-            const file = await fileHandle.getFile();
-            return await file.text();
+        async function readSafe(dirHandle, fileName, defaultContent = "") {
+            try {
+                const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+                const file = await fileHandle.getFile();
+                const content = await file.text();
+                if (!content.trim() && defaultContent) {
+                    await writeSafe(dirHandle, fileName, defaultContent);
+                    return defaultContent;
+                }
+                return content;
+            } catch (e) {
+                return defaultContent;
+            }
         }
 
-        async function writeFile(fileHandle, content) {
+        async function writeSafe(dirHandle, fileName, content) {
+            const fileHandle = await getOrCreateFile(dirHandle, fileName);
             const writable = await fileHandle.createWritable();
             await writable.write(content);
             await writable.close();
         }
 
         // ==========================================
-        // 4. LÓGICA DE NEGÓCIO E DOM CONTROLLERS
+        // 3. CORE LOGIC E INICIALIZAÇÃO
         // ==========================================
-
-        const DOM = {
-            screenConnect: document.getElementById('screen-connect'),
-            screenMain: document.getElementById('screen-main'),
-            btnOpenFolder: document.getElementById('btn-open-folder'),
-            lblFolderName: document.getElementById('lbl-folder-name'),
-            selectTargetAI: document.getElementById('select-target-ai'),
-            selectActiveFeature: document.getElementById('select-active-feature'),
-            txtGeneratedPrompt: document.getElementById('txt-generated-prompt'),
-            btnCopyPrompt: document.getElementById('btn-copy-prompt'),
-            btnRescueCut: document.getElementById('btn-rescue-cut'),
-            btnCompleteTask: document.getElementById('btn-complete-task'),
-            containerTasks: document.getElementById('container-tasks'),
-            lblProgressText: document.getElementById('lbl-progress-text'),
-            barProgress: document.getElementById('bar-progress')
-        };
-
         async function initializeProject() {
             try {
                 if (!window.showDirectoryPicker) {
-                    alert('Seu navegador não suporta a FileSystem Access API. Use o Chrome ou Edge para desktop.');
+                    alert('Use Chrome, Edge ou Opera (Desktop) para suportar a API de Arquivos.');
                     return;
                 }
 
-                const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                AppState.directoryHandle = dirHandle;
-                DOM.lblFolderName.textContent = dirHandle.name;
+                AppState.directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                DOM.lblFolderName.textContent = AppState.directoryHandle.name;
 
-                // Scaffold/Garante estrutura de diretórios .specify e specs
-                const specifyDir = await getOrCreateDir(dirHandle, '.specify');
-                const specsDir = await getOrCreateDir(dirHandle, 'specs');
+                // Pastas Base
+                const specifyDir = await getOrCreateDir(AppState.directoryHandle, '.specify');
+                const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
 
-                // Garante/Lê constitution.md
-                const constitutionHandle = await getOrCreateFile(specifyDir, 'constitution.md');
-                AppState.constitutionContent = await readFile(constitutionHandle);
-                if (!AppState.constitutionContent.trim()) {
-                    await writeFile(constitutionHandle, "# Constituição do Projeto\n- Usar HTML5 e JS Vanilla.");
-                }
+                // Lê Constituição Global
+                AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md', "# Constituição do Projeto\n- Siga a arquitetura SPA Vanilla.");
 
-                // Garante/Lê config.json
-                const configHandle = await getOrCreateFile(specifyDir, 'config.json');
-                let configRaw = await readFile(configHandle);
+                // Lê/Cria Config
+                let configRaw = await readSafe(specifyDir, 'config.json');
                 if (!configRaw.trim()) {
-                    AppState.projectConfig = {
-                        projectName: dirHandle.name,
-                        activeFeatureId: "",
-                        targetAI: "m365-copilot",
-                        createdAt: new Date().toISOString()
-                    };
-                    await writeFile(configHandle, JSON.stringify(AppState.projectConfig, null, 2));
+                    AppState.projectConfig = { activeFeatureId: "", targetAI: "m365-copilot" };
+                    await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
                 } else {
                     AppState.projectConfig = JSON.parse(configRaw);
                 }
 
-                // Sincroniza configurações locais
-                AppState.settings.targetAI = AppState.projectConfig.targetAI || 'm365-copilot';
-                DOM.selectTargetAI.value = AppState.settings.targetAI;
+                DOM.selectTargetAI.value = AppState.projectConfig.targetAI;
 
-                // Escaneia pastas de features dentro de /specs
+                // Escaneia Features
                 AppState.features = [];
                 for await (const entry of specsDir.values()) {
-                    if (entry.kind === 'directory') {
-                        AppState.features.push(entry.name);
-                    }
+                    if (entry.kind === 'directory') AppState.features.push(entry.name);
                 }
 
-                // Mock se não houver feature (apenas para fluidez do start inicial)
+                // Cria feature inicial caso repositório esteja vazio
                 if (AppState.features.length === 0) {
-                    const mockFeatureDir = await getOrCreateDir(specsDir, '001-setup-inicial');
-                    const mockSpec = await getOrCreateFile(mockFeatureDir, 'spec.md');
-                    const mockTasks = await getOrCreateFile(mockFeatureDir, 'tasks.md');
-                    
-                    await writeFile(mockSpec, "# Especificação Inicial\nCriar estrutura base.");
-                    await writeFile(mockTasks, "# Lista de Tarefas\n- [ ] [T-001] Criar index.html\n- [ ] [T-002] Conectar CSS");
-                    
-                    AppState.features.push('001-setup-inicial');
+                    const mockDir = await getOrCreateDir(specsDir, '001-feature-inicial');
+                    await writeSafe(mockDir, 'spec.md', "# Especificação\nDescreva a ideia aqui.");
+                    await writeSafe(mockDir, 'tasks.md', "# Lista de Tarefas\n- [ ] [T-001] Criar UI base");
+                    AppState.features.push('001-feature-inicial');
                 }
 
-                // Popula Select de Features
+                // Popula Dropdown
                 DOM.selectActiveFeature.innerHTML = AppState.features.map(f => `<option value="${f}">${f}</option>`).join('');
                 
-                const featureToLoad = AppState.projectConfig.activeFeatureId && AppState.features.includes(AppState.projectConfig.activeFeatureId) 
-                    ? AppState.projectConfig.activeFeatureId 
-                    : AppState.features[0];
+                const initialFeature = (AppState.projectConfig.activeFeatureId && AppState.features.includes(AppState.projectConfig.activeFeatureId)) 
+                    ? AppState.projectConfig.activeFeatureId : AppState.features[0];
                 
-                DOM.selectActiveFeature.value = featureToLoad;
-                await loadFeatureData(featureToLoad);
+                DOM.selectActiveFeature.value = initialFeature;
+                await loadFeatureData(initialFeature);
 
-                // Troca de Tela
+                // Mostra UI
                 DOM.screenConnect.classList.add('hidden');
                 DOM.screenMain.classList.remove('hidden');
                 setTimeout(() => DOM.screenMain.classList.remove('opacity-0'), 50);
-                AppState.isConnected = true;
 
             } catch (error) {
-                console.error("Falha ao inicializar projeto:", error);
-                if (error.name !== 'AbortError') {
-                    alert('Erro ao carregar o projeto. Verifique as permissões do navegador.');
-                }
+                console.error(error);
             }
         }
 
         async function loadFeatureData(featureId) {
-            try {
-                AppState.activeFeature.id = featureId;
-                const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
-                const featureDir = await specsDir.getDirectoryHandle(featureId);
+            AppState.activeFeature.id = featureId;
+            const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
+            const featureDir = await getOrCreateDir(specsDir, featureId);
+            
+            // Carrega todos os arquivos da feature ativa
+            AppState.activeFeature.files['spec.md'] = await readSafe(featureDir, 'spec.md', "# Especificação da Funcionalidade\n");
+            AppState.activeFeature.files['clarify.md'] = await readSafe(featureDir, 'clarify.md', "# Dúvidas e Decisões\n");
+            AppState.activeFeature.files['plan.md'] = await readSafe(featureDir, 'plan.md', "# Plano Técnico\n");
+            AppState.activeFeature.files['tasks.md'] = await readSafe(featureDir, 'tasks.md', "# Tarefas\n- [ ] [T-001] Tarefa Exemplo");
+
+            // Faz o parse das tarefas para a aba "Mão na massa"
+            AppState.activeFeature.tasksParsed = parseTasks(AppState.activeFeature.files['tasks.md']);
+            
+            // Salva state local
+            AppState.projectConfig.activeFeatureId = featureId;
+            const specifyDir = await AppState.directoryHandle.getDirectoryHandle('.specify');
+            await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
+
+            renderSidebar();
+            switchStation(AppState.activeStep);
+        }
+
+        // ==========================================
+        // 4. UI: NAVEGAÇÃO E EDIÇÃO
+        // ==========================================
+        function renderSidebar() {
+            DOM.sidebarStations.innerHTML = STATIONS.map(station => `
+                <li>
+                    <button onclick="switchStation(${station.id})" 
+                            class="w-full text-left px-3 py-2 rounded flex items-center gap-2 transition-colors ${AppState.activeStep === station.id ? 'bg-gray-800 text-white font-medium' : 'hover:bg-gray-800/50'}">
+                        <span>${station.icon}</span> ${station.id}. ${station.title}
+                    </button>
+                </li>
+            `).join('');
+        }
+
+        function switchStation(stepId) {
+            AppState.activeStep = stepId;
+            renderSidebar();
+            
+            const station = STATIONS.find(s => s.id === stepId);
+
+            if (station.path === 'special') {
+                // View: Implementação (Estação 6)
+                DOM.viewEditor.classList.add('hidden');
+                DOM.viewImplement.classList.remove('hidden');
+                renderImplementation();
+            } else {
+                // View: Editor de Texto (Estações 1 a 5)
+                DOM.viewImplement.classList.add('hidden');
+                DOM.viewEditor.classList.remove('hidden');
                 
-                // Lê spec.md
-                try {
-                    const specHandle = await featureDir.getFileHandle('spec.md');
-                    AppState.activeFeature.spec = await readFile(specHandle);
-                } catch { AppState.activeFeature.spec = ""; }
-
-                // Lê tasks.md
-                try {
-                    const tasksHandle = await featureDir.getFileHandle('tasks.md');
-                    AppState.activeFeature.rawTasksMarkdown = await readFile(tasksHandle);
-                    AppState.activeFeature.tasks = parseTasksMarkdown(AppState.activeFeature.rawTasksMarkdown);
-                } catch { 
-                    AppState.activeFeature.rawTasksMarkdown = "";
-                    AppState.activeFeature.tasks = [];
+                DOM.lblEditorTitle.innerHTML = `${station.icon} ESTAÇÃO ${station.id}: ${station.title}`;
+                
+                if (station.path === '.specify') {
+                    DOM.lblEditorFile.textContent = `/.specify/${station.file}`;
+                    DOM.txtMarkdownEditor.value = AppState.constitutionContent;
+                } else {
+                    DOM.lblEditorFile.textContent = `/specs/${AppState.activeFeature.id}/${station.file}`;
+                    DOM.txtMarkdownEditor.value = AppState.activeFeature.files[station.file];
                 }
-
-                // Atualiza Config
-                AppState.projectConfig.activeFeatureId = featureId;
-                const configHandle = await (await AppState.directoryHandle.getDirectoryHandle('.specify')).getFileHandle('config.json');
-                await writeFile(configHandle, JSON.stringify(AppState.projectConfig, null, 2));
-
-                renderTasks();
-
-            } catch (error) {
-                console.error("Erro ao carregar dados da feature:", error);
             }
         }
 
-        function renderTasks() {
+        async function saveCurrentEditor() {
+            const station = STATIONS.find(s => s.id === AppState.activeStep);
+            const content = DOM.txtMarkdownEditor.value;
+            const btnOriginal = DOM.btnSaveFile.innerHTML;
+
+            try {
+                if (station.path === '.specify') {
+                    AppState.constitutionContent = content;
+                    const dir = await AppState.directoryHandle.getDirectoryHandle('.specify');
+                    await writeSafe(dir, station.file, content);
+                } else {
+                    AppState.activeFeature.files[station.file] = content;
+                    const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
+                    const featureDir = await specsDir.getDirectoryHandle(AppState.activeFeature.id);
+                    await writeSafe(featureDir, station.file, content);
+
+                    // Se editou o tasks.md, re-calcula as tasks lógicas
+                    if (station.file === 'tasks.md') {
+                        AppState.activeFeature.tasksParsed = parseTasks(content);
+                    }
+                }
+
+                DOM.btnSaveFile.innerHTML = "✅ Salvo com sucesso!";
+                setTimeout(() => DOM.btnSaveFile.innerHTML = btnOriginal, 2000);
+            } catch (err) {
+                alert("Erro ao salvar o arquivo.");
+            }
+        }
+
+        // ==========================================
+        // 5. LÓGICA DA ESTAÇÃO 6 (MÃO NA MASSA)
+        // ==========================================
+        function parseTasks(text) {
+            const lines = text.split('\n');
+            const tasks = [];
+            const regex = /^-\s*\[([xX\s])\]\s*\[(T-\d+)\]\s*(.+)$/;
+            
+            lines.forEach((line, i) => {
+                const match = line.trim().match(regex);
+                if (match) {
+                    tasks.push({ id: match[2], completed: match[1].toLowerCase() === 'x', title: match[3], lineIndex: i });
+                }
+            });
+            return tasks;
+        }
+
+        function serializeTasks() {
+            const lines = AppState.activeFeature.files['tasks.md'].split('\n');
+            AppState.activeFeature.tasksParsed.forEach(t => {
+                lines[t.lineIndex] = `- [${t.completed ? 'x' : ' '}] [${t.id}] ${t.title}`;
+            });
+            return lines.join('\n');
+        }
+
+        function renderImplementation() {
             DOM.containerTasks.innerHTML = '';
             let completedCount = 0;
-            let activeTaskSet = false;
+            let firstPendingId = null;
 
-            AppState.activeFeature.tasks.forEach(task => {
+            AppState.activeFeature.tasksParsed.forEach(task => {
                 if (task.completed) completedCount++;
+                else if (!firstPendingId) firstPendingId = task.id;
 
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left p-3 mb-2 rounded text-sm transition-colors border flex items-start gap-3 ${
-                    task.completed 
-                    ? 'bg-gray-800/50 border-gray-700/50 text-gray-500' 
-                    : AppState.activeTaskId === task.id
-                        ? 'bg-blue-900/30 border-blue-500/50 text-white'
-                        : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                const isSelected = AppState.activeTaskId === task.id;
+                
+                btn.className = `w-full text-left p-3 rounded text-sm border flex gap-3 transition-colors ${
+                    task.completed ? 'bg-gray-800/50 border-gray-700/50 text-gray-500' :
+                    isSelected ? 'bg-blue-900/30 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
                 }`;
-                
-                const icon = task.completed ? '✅' : (AppState.activeTaskId === task.id ? '👉' : '⏳');
-                
-                btn.innerHTML = `<span class="mt-0.5">${icon}</span> <span class="flex-1"><b>[${task.id}]</b> ${task.title}</span>`;
+                btn.innerHTML = `<span class="mt-0.5">${task.completed ? '✅' : (isSelected ? '👉' : '⏳')}</span> <span><b>[${task.id}]</b> ${task.title}</span>`;
                 
                 btn.onclick = () => {
                     if (!task.completed) {
                         AppState.activeTaskId = task.id;
-                        renderTasks();
-                        updatePromptView();
+                        renderImplementation();
                     }
                 };
-                
-                // Auto-seleciona a primeira pendente
-                if (!task.completed && !activeTaskSet && !AppState.activeTaskId) {
-                    AppState.activeTaskId = task.id;
-                    activeTaskSet = true;
-                    setTimeout(() => btn.click(), 0);
-                }
-
                 DOM.containerTasks.appendChild(btn);
             });
 
-            const total = AppState.activeFeature.tasks.length;
-            const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            if (!AppState.activeTaskId && firstPendingId) AppState.activeTaskId = firstPendingId;
+
+            // Atualiza Barra de Progresso
+            const total = AppState.activeFeature.tasksParsed.length;
+            const pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+            DOM.lblProgressText.textContent = `${pct}% (${completedCount}/${total} Tarefas)`;
+            DOM.barProgress.style.width = `${pct}%`;
             
-            DOM.lblProgressText.textContent = `${percentage}% (${completedCount}/${total} Tarefas)`;
-            DOM.barProgress.style.width = `${percentage}%`;
+            DOM.barProgress.className = `h-full transition-all duration-500 ${pct === 100 ? 'bg-green-500' : 'bg-blue-600'}`;
+            DOM.lblProgressText.className = `font-bold ${pct === 100 ? 'text-green-500' : 'text-blue-400'}`;
 
-            if (completedCount === total && total > 0) {
-                DOM.barProgress.classList.replace('bg-blue-600', 'bg-green-500');
-                DOM.lblProgressText.classList.replace('text-blue-400', 'text-green-500');
-            } else {
-                DOM.barProgress.classList.replace('bg-green-500', 'bg-blue-600');
-                DOM.lblProgressText.classList.replace('text-green-500', 'text-blue-400');
-            }
-
-            if (!AppState.activeFeature.tasks.find(t => t.id === AppState.activeTaskId && !t.completed)) {
-                AppState.activeTaskId = null;
-                updatePromptView();
-            }
+            updatePromptGenerator();
         }
 
-        function updatePromptView() {
-            const activeTask = AppState.activeFeature.tasks.find(t => t.id === AppState.activeTaskId);
-            if (activeTask) {
-                DOM.txtGeneratedPrompt.value = generatePromptForTask(activeTask, AppState.settings.targetAI);
-                DOM.btnCompleteTask.disabled = false;
-                DOM.btnCompleteTask.innerHTML = `🎯 CONCLUIR [${activeTask.id}]`;
-            } else {
-                DOM.txtGeneratedPrompt.value = "Selecione uma tarefa pendente na lista à esquerda.";
+        function updatePromptGenerator() {
+            const task = AppState.activeFeature.tasksParsed.find(t => t.id === AppState.activeTaskId);
+            if (!task) {
+                DOM.txtGeneratedPrompt.value = "Nenhuma tarefa pendente selecionada.";
                 DOM.btnCompleteTask.disabled = true;
-                DOM.btnCompleteTask.innerHTML = `🎯 CONCLUIR TAREFA`;
+                return;
             }
+
+            DOM.btnCompleteTask.disabled = false;
+            DOM.btnCompleteTask.textContent = `🎯 CONCLUIR ${task.id}`;
+
+            const ai = DOM.selectTargetAI.value;
+            let directive = ai === 'copilot-free' ? "Escreva código curto, divida se necessário." : 
+                            ai === 'deepseek' ? "Código direto e limpo." : 
+                            "RESPONDA APENAS COM CÓDIGO DENTRO DE BLOCOS MARKDOWN.";
+
+            DOM.txtGeneratedPrompt.value = `[DIRETRIZ DA IA]\n${directive}\n\n[CONSTITUIÇÃO DA SOLUÇÃO]\n${AppState.constitutionContent}\n\n[ESPECIFICAÇÃO]\n${AppState.activeFeature.files['spec.md']}\n\n[TAREFA ATÔMICA]\nID: ${task.id}\nDescrição: ${task.title}\n\n[INSTRUÇÃO]\nGere apenas o código para a tarefa ${task.id}.`;
         }
 
-        async function completeActiveTask() {
-            if (!AppState.activeTaskId) return;
+        async function concludeTask() {
+            const task = AppState.activeFeature.tasksParsed.find(t => t.id === AppState.activeTaskId);
+            if (!task) return;
+
+            task.completed = true;
+            AppState.activeTaskId = null; // reseta para pegar a próxima
             
-            const taskIndex = AppState.activeFeature.tasks.findIndex(t => t.id === AppState.activeTaskId);
-            if (taskIndex > -1) {
-                AppState.activeFeature.tasks[taskIndex].completed = true;
-                AppState.activeTaskId = null; // Reseta para auto-selecionar o próximo no render
+            AppState.activeFeature.files['tasks.md'] = serializeTasks();
+            const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
+            const featureDir = await specsDir.getDirectoryHandle(AppState.activeFeature.id);
+            await writeSafe(featureDir, 'tasks.md', AppState.activeFeature.files['tasks.md']);
 
-                // Grava no disco
-                AppState.activeFeature.rawTasksMarkdown = serializeTasksToMarkdown(
-                    AppState.activeFeature.rawTasksMarkdown, 
-                    AppState.activeFeature.tasks
-                );
-
-                const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
-                const featureDir = await specsDir.getDirectoryHandle(AppState.activeFeature.id);
-                const tasksHandle = await featureDir.getFileHandle('tasks.md');
-                await writeFile(tasksHandle, AppState.activeFeature.rawTasksMarkdown);
-
-                renderTasks();
-                updatePromptView();
-            }
+            renderImplementation();
         }
 
-        async function copyToClipboard(text, btnElement, originalText) {
-            try {
-                await navigator.clipboard.writeText(text);
-                btnElement.textContent = "✅ COPIADO!";
-                setTimeout(() => btnElement.textContent = originalText, 2000);
-            } catch (err) {
-                // Fallback caso o Clipboard seja bloqueado
+        function copyToClip(text, btn, originalTxt) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = "✅ COPIADO!";
+                setTimeout(() => btn.textContent = originalTxt, 2000);
+            }).catch(() => {
                 DOM.txtGeneratedPrompt.select();
                 document.execCommand('copy');
-                btnElement.textContent = "⚠️ COPIADO VIA FALLBACK";
-                setTimeout(() => btnElement.textContent = originalText, 2000);
-            }
+                btn.textContent = "⚠️ COPIADO VIA FALLBACK";
+                setTimeout(() => btn.textContent = originalTxt, 2000);
+            });
         }
 
         // ==========================================
-        // 5. EVENT LISTENERS DO CONTRATO
+        // 6. LISTENERS
         // ==========================================
-        
-        DOM.btnOpenFolder.addEventListener('click', initializeProject);
-        
         DOM.selectTargetAI.addEventListener('change', async (e) => {
-            AppState.settings.targetAI = e.target.value;
             AppState.projectConfig.targetAI = e.target.value;
-            
-            if (AppState.directoryHandle) {
-                const configHandle = await (await AppState.directoryHandle.getDirectoryHandle('.specify')).getFileHandle('config.json');
-                await writeFile(configHandle, JSON.stringify(AppState.projectConfig, null, 2));
+            if(AppState.directoryHandle) {
+                const specifyDir = await AppState.directoryHandle.getDirectoryHandle('.specify');
+                await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
             }
-            updatePromptView();
+            if(AppState.activeStep === 6) updatePromptGenerator();
         });
 
         DOM.selectActiveFeature.addEventListener('change', (e) => {
@@ -550,21 +541,11 @@
             loadFeatureData(e.target.value);
         });
 
-        DOM.btnCopyPrompt.addEventListener('click', () => {
-            copyToClipboard(DOM.txtGeneratedPrompt.value, DOM.btnCopyPrompt, "📋 COPIAR PROMPT");
-        });
-
-        DOM.btnRescueCut.addEventListener('click', () => {
-            const emergencyPrompt = "Você atingiu o limite de saída e cortou a resposta. Continue exatamente a partir da última linha sem repetir o código anterior.";
-            copyToClipboard(emergencyPrompt, DOM.btnRescueCut, "🆘 A IA CORTOU");
-        });
-
-        DOM.btnCompleteTask.addEventListener('click', completeActiveTask);
-
-        // Opcional: Bind de recarregamento caso haja edição por fora da SPA (vscode, etc)
-        document.getElementById('btn-reload').addEventListener('click', () => {
-            if (AppState.activeFeature.id) loadFeatureData(AppState.activeFeature.id);
-        });
+        DOM.btnSaveFile.addEventListener('click', saveCurrentEditor);
+        DOM.btnCompleteTask.addEventListener('click', concludeTask);
+        
+        DOM.btnCopyPrompt.addEventListener('click', () => copyToClip(DOM.txtGeneratedPrompt.value, DOM.btnCopyPrompt, "📋 COPIAR"));
+        DOM.btnRescueCut.addEventListener('click', () => copyToClip("A IA cortou o código. Continue exatamente de onde parou.", DOM.btnRescueCut, "🆘 A IA CORTOU"));
 
     </script>
 </body>
