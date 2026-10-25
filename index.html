@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpecFlow Studio V1.0 - Local First</title>
+    <title>SpecFlow Studio V1.1 - Local First AI Orchestrator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -22,36 +22,37 @@
         ::-webkit-scrollbar-track { background: #111827; }
         ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        .split-col { height: calc(100vh - 180px); }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-200 font-sans h-screen flex flex-col overflow-hidden">
 
-    <!-- TELA 1: ESTADO INICIAL (SEM PASTA CONECTADA) -->
+    <!-- TELA 1: ESTADO INICIAL (CONNECT) -->
     <div id="screen-connect" class="flex-1 flex flex-col items-center justify-center p-6 z-10 absolute inset-0 bg-gray-950">
         <div class="max-w-md w-full bg-gray-900 border border-gray-800 rounded-xl p-8 shadow-2xl text-center">
             <div class="text-4xl mb-4">🧭</div>
             <h1 class="text-2xl font-bold text-white mb-2">SpecFlow Studio</h1>
-            <p class="text-gray-400 text-sm mb-8">[ V1.0 - Local First ]</p>
+            <p class="text-gray-400 text-sm mb-8">[ V1.1 - AI Prompt Engine ]</p>
             
-            <div class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors cursor-pointer" onclick="initializeProject()">
+            <div id="btn-open-folder" class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors cursor-pointer bg-gray-800/30">
                 <h2 class="text-lg font-semibold text-gray-200 mb-2">📂 CONECTAR PROJETO</h2>
-                <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do repositório para iniciar.</p>
+                <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do repositório para iniciar a esteira.</p>
                 <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg">
                     📂 Selecionar Pasta
                 </button>
             </div>
             
             <p class="text-xs text-gray-500 flex items-center justify-center gap-2">
-                <span>🔒</span> Seus arquivos nunca saem do computador.
+                <span>🔒</span> Zero Exfiltração. Processamento 100% Client-Side.
             </p>
         </div>
     </div>
 
-    <!-- TELA 2: PAINEL PRINCIPAL -->
+    <!-- TELA 2: DASHBOARD PRINCIPAL -->
     <div id="screen-main" class="hidden flex-1 flex flex-col h-full opacity-0 transition-opacity duration-500">
         
         <!-- HEADER -->
-        <header class="bg-gray-900 border-b border-gray-800 h-14 flex items-center justify-between px-4 shrink-0">
+        <header class="bg-gray-900 border-b border-gray-800 h-14 flex items-center justify-between px-4 shrink-0 shadow-sm">
             <div class="flex items-center gap-3 text-sm">
                 <span class="text-xl">🧭</span>
                 <span class="font-bold text-white tracking-wide">SpecFlow Studio</span>
@@ -61,7 +62,7 @@
             
             <div class="flex items-center gap-4 text-sm">
                 <div class="flex items-center gap-2">
-                    <label class="text-gray-400">IA:</label>
+                    <label class="text-gray-400">IA Alvo:</label>
                     <select id="select-target-ai" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500">
                         <option value="m365-copilot">M365 Copilot</option>
                         <option value="gemini">Google Gemini</option>
@@ -71,60 +72,80 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <label class="text-gray-400">Feature:</label>
-                    <select id="select-active-feature" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500">
-                        <!-- Preenchido via JS -->
-                    </select>
+                    <select id="select-active-feature" class="bg-gray-800 border border-gray-700 text-white rounded px-2 py-1 outline-none focus:border-blue-500"></select>
                 </div>
             </div>
         </header>
 
-        <!-- MAIN CONTENT -->
+        <!-- MAIN LAYOUT -->
         <main class="flex-1 flex overflow-hidden">
             <!-- SIDEBAR: ESTAÇÕES -->
             <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col shrink-0">
                 <div class="p-4 border-b border-gray-800">
                     <h3 class="text-xs font-bold text-gray-500 tracking-wider mb-3">ESTAÇÕES DA JORNADA</h3>
                     <ul id="sidebar-stations" class="space-y-1 text-sm text-gray-400">
-                        <!-- Renderizado via JS -->
+                        <!-- Injetado via JS -->
                     </ul>
                 </div>
-                
-                <div class="p-4 mt-auto border-t border-gray-800 text-xs text-gray-500">
-                    Salvamento 100% Local <br>FileSystem Access API
+                <div class="p-4 mt-auto border-t border-gray-800">
+                    <p class="text-xs text-gray-500 leading-tight">Mecanismo de Persistência:<br><span class="text-green-500 font-medium">FileSystem Access API</span></p>
                 </div>
             </aside>
 
-            <!-- CONTAINER CENTRAL -->
+            <!-- CONTEÚDO CENTRAL -->
             <section class="flex-1 flex flex-col min-w-0 bg-gray-950 p-6 overflow-y-auto">
                 
-                <!-- VIEW 1: EDITOR MARKDOWN (Estações 1 a 5) -->
-                <div id="view-editor" class="hidden flex-1 flex-col h-full">
-                    <header class="flex justify-between items-center mb-4">
-                        <div>
-                            <h2 id="lbl-editor-title" class="text-xl font-bold text-white flex items-center gap-2">
-                                📍 ESTAÇÃO X: Título
-                            </h2>
-                            <p id="lbl-editor-file" class="text-sm text-gray-500 mt-1">/caminho/do/arquivo.md</p>
+                <header class="mb-4">
+                    <h2 id="lbl-station-title" class="text-xl font-bold text-white flex items-center gap-2">📍 ESTAÇÃO X</h2>
+                    <p id="lbl-station-desc" class="text-sm text-gray-500 mt-1">Descrição da estação.</p>
+                </header>
+
+                <!-- VIEW A: FÁBRICA DE PROMPTS (Estações 1 a 5 - SPLIT VIEW) -->
+                <div id="view-prompt-factory" class="hidden flex-1 flex gap-4 h-full">
+                    
+                    <!-- Coluna 1: Input do Usuário -->
+                    <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
+                        <div class="bg-gray-850 px-4 py-2 border-b border-gray-800">
+                            <h3 class="text-xs font-bold text-gray-300 tracking-wider">1. SEU INPUT BRUTO</h3>
                         </div>
-                        <button id="btn-save-file" class="bg-green-600 hover:bg-green-500 text-white font-medium py-2 px-6 rounded transition-colors flex items-center gap-2">
-                            💾 Salvar Arquivo
-                        </button>
-                    </header>
-                    <textarea id="txt-markdown-editor" class="flex-1 w-full bg-gray-900 text-gray-300 p-4 font-mono text-sm border border-gray-800 rounded-lg resize-none focus:outline-none focus:border-blue-500" placeholder="Escreva o markdown aqui..."></textarea>
+                        <textarea id="txt-user-input" class="flex-1 w-full bg-gray-900 text-gray-200 p-4 text-sm resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Escreva sua ideia, premissas ou respostas aqui..."></textarea>
+                    </div>
+
+                    <!-- Coluna 2: Prompt Gerado -->
+                    <div class="w-1/3 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
+                        <div class="bg-blue-950/30 px-4 py-2 border-b border-blue-900/50 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-blue-400 tracking-wider">2. PROMPT GERADO (SPA)</h3>
+                            <span class="text-[10px] bg-blue-900/50 text-blue-200 px-2 py-0.5 rounded">Auto-Injetado</span>
+                        </div>
+                        <textarea id="txt-station-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-400 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
+                        <div class="p-2 bg-gray-850 border-t border-gray-800">
+                            <button id="btn-copy-station-prompt" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 rounded transition-colors flex justify-center items-center gap-2">
+                                📋 COPIAR PROMPT PARA A IA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Coluna 3: Resultado da IA / Editor Final -->
+                    <div class="w-1/3 flex flex-col border border-green-900/50 rounded-lg bg-gray-900 overflow-hidden split-col shadow-lg">
+                        <div class="bg-green-950/30 px-4 py-2 border-b border-green-900/50 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-green-400 tracking-wider">3. ARTEFATO FINAL</h3>
+                            <span id="lbl-artifact-name" class="text-[10px] text-green-500">arquivo.md</span>
+                        </div>
+                        <textarea id="txt-ai-response" class="flex-1 w-full bg-gray-900 text-green-50 p-4 text-sm font-mono resize-none focus:outline-none focus:bg-gray-850 transition-colors" placeholder="Cole a resposta da IA (Markdown) aqui para salvar..."></textarea>
+                        <div class="p-2 bg-gray-850 border-t border-gray-800">
+                            <button id="btn-save-station" class="w-full bg-green-700 hover:bg-green-600 text-white text-sm font-bold py-2 rounded transition-colors flex justify-center items-center gap-2">
+                                💾 SALVAR NO DISCO
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- VIEW 2: MÃO NA MASSA (Estação 6) -->
+                <!-- VIEW B: ESTAÇÃO 6 (IMPLEMENTAÇÃO) -->
                 <div id="view-implement" class="hidden flex-1 flex-col h-full">
-                    <header class="mb-6">
-                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                            📍 ESTAÇÃO 6: MÃO NA MASSA <span class="text-gray-500 text-sm font-normal">(/implement)</span>
-                        </h2>
-                    </header>
-
                     <!-- PROGRESSO -->
-                    <div class="mb-6">
+                    <div class="mb-4">
                         <div class="flex justify-between text-sm mb-2">
-                            <span class="text-gray-400 font-medium">PROGRESSO DA FEATURE</span>
+                            <span class="text-gray-400 font-medium">PROGRESSO DO CÓDIGO</span>
                             <span id="lbl-progress-text" class="text-blue-400 font-bold">0% (0/0 Tarefas)</span>
                         </div>
                         <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
@@ -132,25 +153,25 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-6 h-full min-h-[400px]">
+                    <div class="flex gap-4 h-full split-col">
                         <!-- CHECKLIST -->
-                        <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
-                            <div class="bg-gray-850 px-4 py-2 border-b border-gray-800 flex justify-between">
+                        <div class="w-1/3 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden shadow-lg">
+                            <div class="bg-gray-850 px-4 py-2 border-b border-gray-800">
                                 <h3 class="text-xs font-bold text-gray-400 tracking-wider">CHECKLIST (tasks.md)</h3>
                             </div>
                             <div class="flex-1 overflow-y-auto p-2 space-y-1" id="container-tasks"></div>
                         </div>
 
-                        <!-- PROMPT -->
-                        <div class="flex-1 flex flex-col border border-gray-800 rounded-lg bg-gray-900 overflow-hidden">
-                            <div class="bg-gray-850 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
-                                <h3 class="text-xs font-bold text-blue-400 tracking-wider">PROMPT DE CONTEXTO MÍNIMO</h3>
+                        <!-- PROMPT DE IMPLEMENTAÇÃO -->
+                        <div class="flex-1 flex flex-col border border-blue-900/50 rounded-lg bg-gray-900 overflow-hidden shadow-lg">
+                            <div class="bg-blue-950/30 px-4 py-2 border-b border-blue-900/50 flex justify-between items-center">
+                                <h3 class="text-xs font-bold text-blue-400 tracking-wider">PROMPT DE CÓDIGO (CONTEXTO MÍNIMO)</h3>
                             </div>
-                            <textarea id="txt-generated-prompt" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
+                            <textarea id="txt-generated-prompt-code" readonly class="flex-1 w-full bg-gray-950 text-gray-300 p-4 text-sm font-mono resize-none focus:outline-none"></textarea>
                             <div class="bg-gray-850 px-4 py-3 border-t border-gray-800 flex gap-2">
-                                <button id="btn-copy-prompt" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium py-2 rounded">📋 COPIAR</button>
-                                <button id="btn-rescue-cut" class="flex-1 bg-yellow-900/50 hover:bg-yellow-800 text-yellow-500 text-sm font-medium py-2 rounded">🆘 A IA CORTOU</button>
-                                <button id="btn-complete-task" disabled class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium py-2 rounded">🎯 CONCLUIR TAREFA</button>
+                                <button id="btn-copy-code-prompt" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-sm font-bold py-2 rounded">📋 COPIAR</button>
+                                <button id="btn-rescue-cut" class="flex-1 bg-yellow-900/40 hover:bg-yellow-800/80 text-yellow-500 text-sm font-bold py-2 rounded border border-yellow-700/50">🆘 IA CORTOU</button>
+                                <button id="btn-complete-task" disabled class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold py-2 rounded">🎯 MARCAR [X]</button>
                             </div>
                         </div>
                     </div>
@@ -162,32 +183,27 @@
 
     <script>
         // ==========================================
-        // 1. DADOS E ESTADO DA APLICAÇÃO
+        // 1. ESTADO GLOBAL E CONFIGURAÇÕES
         // ==========================================
         const STATIONS = [
-            { id: 1, title: 'Regras do Jogo', file: 'constitution.md', path: '.specify', icon: '📜' },
-            { id: 2, title: 'Ideia no Papel', file: 'spec.md', path: 'feature', icon: '💡' },
-            { id: 3, title: 'Tirando Dúvidas', file: 'clarify.md', path: 'feature', icon: '❓' },
-            { id: 4, title: 'Desenho Técnico', file: 'plan.md', path: 'feature', icon: '📐' },
-            { id: 5, title: 'Lista de Tarefas', file: 'tasks.md', path: 'feature', icon: '✅' },
-            { id: 6, title: 'Mão na Massa', file: 'implement', path: 'special', icon: '👉' }
+            { id: 1, title: 'Regras do Jogo', desc: 'Defina a stack, padrões e restrições arquiteturais.', file: 'constitution.md', path: '.specify', icon: '📜', placeholder: 'Ex: SPA Local-first com Tailwind e Vanilla JS. Proibido usar Node.js.' },
+            { id: 2, title: 'Ideia no Papel', desc: 'Transforme uma ideia bruta em histórias de usuário.', file: 'spec.md', path: 'feature', icon: '💡', placeholder: 'Ex: Quero um app para registrar as faltas escolares do meu filho.' },
+            { id: 3, title: 'Tirando Dúvidas', desc: 'A IA atua como QA apontando falhas na especificação.', file: 'spec.md', path: 'feature', icon: '❓', placeholder: 'Responda as perguntas da IA aqui para refinar o spec.md. Se vazio, a IA apenas fará as perguntas.' },
+            { id: 4, title: 'Desenho Técnico', desc: 'Mapeamento de funções, DOM e LocalStorage.', file: 'plan.md', path: 'feature', icon: '📐', placeholder: 'Adicione observações técnicas extras ou apenas gere o plano.' },
+            { id: 5, title: 'Lista de Tarefas', desc: 'Quebra do escopo em checklist atômico.', file: 'tasks.md', path: 'feature', icon: '✅', placeholder: 'Deixe em branco para geração automática ou insira restrições de ordem.' },
+            { id: 6, title: 'Mão na Massa', desc: 'Geração de prompts iterativos de código baseados nas tasks.', file: 'implement', path: 'special', icon: '👉', placeholder: '' }
         ];
 
         const AppState = {
             directoryHandle: null,
             activeStep: 1, 
-            settings: { targetAI: 'm365-copilot' },
-            projectConfig: null,
+            projectConfig: { activeFeatureId: "", targetAI: "m365-copilot" },
             constitutionContent: '',
             features: [],
             activeFeature: {
                 id: '',
-                files: {
-                    'spec.md': '',
-                    'clarify.md': '',
-                    'plan.md': '',
-                    'tasks.md': ''
-                },
+                files: { 'spec.md': '', 'plan.md': '', 'tasks.md': '' },
+                inputs: { 1: '', 2: '', 3: '', 4: '', 5: '' }, // Cache do input do usuário por estação
                 tasksParsed: []
             },
             activeTaskId: null
@@ -201,89 +217,79 @@
             selectActiveFeature: document.getElementById('select-active-feature'),
             sidebarStations: document.getElementById('sidebar-stations'),
             
-            // Views
-            viewEditor: document.getElementById('view-editor'),
-            viewImplement: document.getElementById('view-implement'),
+            // Cabeçalho da Estação
+            lblStationTitle: document.getElementById('lbl-station-title'),
+            lblStationDesc: document.getElementById('lbl-station-desc'),
             
-            // Editor
-            lblEditorTitle: document.getElementById('lbl-editor-title'),
-            lblEditorFile: document.getElementById('lbl-editor-file'),
-            txtMarkdownEditor: document.getElementById('txt-markdown-editor'),
-            btnSaveFile: document.getElementById('btn-save-file'),
+            // View A: Fábrica
+            viewPromptFactory: document.getElementById('view-prompt-factory'),
+            txtUserInput: document.getElementById('txt-user-input'),
+            txtStationPrompt: document.getElementById('txt-station-prompt'),
+            txtAiResponse: document.getElementById('txt-ai-response'),
+            btnCopyStationPrompt: document.getElementById('btn-copy-station-prompt'),
+            btnSaveStation: document.getElementById('btn-save-station'),
+            lblArtifactName: document.getElementById('lbl-artifact-name'),
 
-            // Implementação
+            // View B: Implementação
+            viewImplement: document.getElementById('view-implement'),
             containerTasks: document.getElementById('container-tasks'),
             lblProgressText: document.getElementById('lbl-progress-text'),
             barProgress: document.getElementById('bar-progress'),
-            txtGeneratedPrompt: document.getElementById('txt-generated-prompt'),
-            btnCopyPrompt: document.getElementById('btn-copy-prompt'),
+            txtGeneratedPromptCode: document.getElementById('txt-generated-prompt-code'),
+            btnCopyCodePrompt: document.getElementById('btn-copy-code-prompt'),
             btnRescueCut: document.getElementById('btn-rescue-cut'),
             btnCompleteTask: document.getElementById('btn-complete-task')
         };
 
         // ==========================================
-        // 2. FILE SYSTEM UTILS (API NATIVA)
+        // 2. FILE SYSTEM UTILS
         // ==========================================
-        async function getOrCreateDir(parentHandle, dirName) {
-            return await parentHandle.getDirectoryHandle(dirName, { create: true });
-        }
-
-        async function getOrCreateFile(dirHandle, fileName) {
-            return await dirHandle.getFileHandle(fileName, { create: true });
-        }
-
-        async function readSafe(dirHandle, fileName, defaultContent = "") {
+        async function getOrCreateDir(parent, name) { return await parent.getDirectoryHandle(name, { create: true }); }
+        async function getOrCreateFile(dir, name) { return await dir.getFileHandle(name, { create: true }); }
+        
+        async function readSafe(dir, name, defaultContent = "") {
             try {
-                const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+                const fileHandle = await getOrCreateFile(dir, name);
                 const file = await fileHandle.getFile();
-                const content = await file.text();
-                if (!content.trim() && defaultContent) {
-                    await writeSafe(dirHandle, fileName, defaultContent);
-                    return defaultContent;
-                }
-                return content;
-            } catch (e) {
-                return defaultContent;
-            }
+                return await file.text() || defaultContent;
+            } catch (e) { return defaultContent; }
         }
 
-        async function writeSafe(dirHandle, fileName, content) {
-            const fileHandle = await getOrCreateFile(dirHandle, fileName);
+        async function writeSafe(dir, name, content) {
+            const fileHandle = await getOrCreateFile(dir, name);
             const writable = await fileHandle.createWritable();
             await writable.write(content);
             await writable.close();
         }
 
-        // ==========================================
-        // 3. CORE LOGIC E INICIALIZAÇÃO
-        // ==========================================
-        async function initializeProject() {
-            try {
-                if (!window.showDirectoryPicker) {
-                    alert('Use Chrome, Edge ou Opera (Desktop) para suportar a API de Arquivos.');
-                    return;
-                }
+        function sanitizePrompt(text) {
+            if (!text) return "";
+            return text.replace(/(sk-[a-zA-Z0-9]{20,})|(Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*)/g, '[DADO_SENSIVEL_REMOVIDO]');
+        }
 
+        // ==========================================
+        // 3. INICIALIZAÇÃO DO PROJETO
+        // ==========================================
+        document.getElementById('btn-open-folder').addEventListener('click', async () => {
+            try {
+                if (!window.showDirectoryPicker) return alert('Navegador incompatível com FileSystem Access API.');
+                
                 AppState.directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
                 DOM.lblFolderName.textContent = AppState.directoryHandle.name;
 
-                // Pastas Base
                 const specifyDir = await getOrCreateDir(AppState.directoryHandle, '.specify');
                 const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
 
-                // Lê Constituição Global
-                AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md', "# Constituição do Projeto\n- Siga a arquitetura SPA Vanilla.");
-
-                // Lê/Cria Config
+                // Lê Configuração e Constituição Global
+                AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md');
                 let configRaw = await readSafe(specifyDir, 'config.json');
+                
                 if (!configRaw.trim()) {
-                    AppState.projectConfig = { activeFeatureId: "", targetAI: "m365-copilot" };
                     await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
                 } else {
                     AppState.projectConfig = JSON.parse(configRaw);
                 }
-
-                DOM.selectTargetAI.value = AppState.projectConfig.targetAI;
+                DOM.selectTargetAI.value = AppState.projectConfig.targetAI || 'm365-copilot';
 
                 // Escaneia Features
                 AppState.features = [];
@@ -291,152 +297,161 @@
                     if (entry.kind === 'directory') AppState.features.push(entry.name);
                 }
 
-                // Cria feature inicial caso repositório esteja vazio
                 if (AppState.features.length === 0) {
-                    const mockDir = await getOrCreateDir(specsDir, '001-feature-inicial');
-                    await writeSafe(mockDir, 'spec.md', "# Especificação\nDescreva a ideia aqui.");
-                    await writeSafe(mockDir, 'tasks.md', "# Lista de Tarefas\n- [ ] [T-001] Criar UI base");
-                    AppState.features.push('001-feature-inicial');
+                    const mockDir = await getOrCreateDir(specsDir, '001-nova-feature');
+                    AppState.features.push('001-nova-feature');
                 }
 
-                // Popula Dropdown
                 DOM.selectActiveFeature.innerHTML = AppState.features.map(f => `<option value="${f}">${f}</option>`).join('');
+                const activeId = AppState.features.includes(AppState.projectConfig.activeFeatureId) ? AppState.projectConfig.activeFeatureId : AppState.features[0];
+                DOM.selectActiveFeature.value = activeId;
                 
-                const initialFeature = (AppState.projectConfig.activeFeatureId && AppState.features.includes(AppState.projectConfig.activeFeatureId)) 
-                    ? AppState.projectConfig.activeFeatureId : AppState.features[0];
-                
-                DOM.selectActiveFeature.value = initialFeature;
-                await loadFeatureData(initialFeature);
+                await loadFeatureData(activeId);
 
-                // Mostra UI
+                // Mostra Workspace
                 DOM.screenConnect.classList.add('hidden');
                 DOM.screenMain.classList.remove('hidden');
                 setTimeout(() => DOM.screenMain.classList.remove('opacity-0'), 50);
-
-            } catch (error) {
-                console.error(error);
-            }
-        }
+            } catch (error) { console.error("Erro na inicialização:", error); }
+        });
 
         async function loadFeatureData(featureId) {
             AppState.activeFeature.id = featureId;
-            const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
+            const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
             const featureDir = await getOrCreateDir(specsDir, featureId);
             
-            // Carrega todos os arquivos da feature ativa
-            AppState.activeFeature.files['spec.md'] = await readSafe(featureDir, 'spec.md', "# Especificação da Funcionalidade\n");
-            AppState.activeFeature.files['clarify.md'] = await readSafe(featureDir, 'clarify.md', "# Dúvidas e Decisões\n");
-            AppState.activeFeature.files['plan.md'] = await readSafe(featureDir, 'plan.md', "# Plano Técnico\n");
-            AppState.activeFeature.files['tasks.md'] = await readSafe(featureDir, 'tasks.md', "# Tarefas\n- [ ] [T-001] Tarefa Exemplo");
+            AppState.activeFeature.files['spec.md'] = await readSafe(featureDir, 'spec.md');
+            AppState.activeFeature.files['plan.md'] = await readSafe(featureDir, 'plan.md');
+            AppState.activeFeature.files['tasks.md'] = await readSafe(featureDir, 'tasks.md');
 
-            // Faz o parse das tarefas para a aba "Mão na massa"
             AppState.activeFeature.tasksParsed = parseTasks(AppState.activeFeature.files['tasks.md']);
             
-            // Salva state local
             AppState.projectConfig.activeFeatureId = featureId;
-            const specifyDir = await AppState.directoryHandle.getDirectoryHandle('.specify');
+            const specifyDir = await getOrCreateDir(AppState.directoryHandle, '.specify');
             await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
 
-            renderSidebar();
-            switchStation(AppState.activeStep);
+            switchStation(1);
         }
 
         // ==========================================
-        // 4. UI: NAVEGAÇÃO E EDIÇÃO
+        // 4. MOTOR ATIVO DE PROMPTS (ESTAÇÕES 1 A 5)
         // ==========================================
-        function renderSidebar() {
-            DOM.sidebarStations.innerHTML = STATIONS.map(station => `
-                <li>
-                    <button onclick="switchStation(${station.id})" 
-                            class="w-full text-left px-3 py-2 rounded flex items-center gap-2 transition-colors ${AppState.activeStep === station.id ? 'bg-gray-800 text-white font-medium' : 'hover:bg-gray-800/50'}">
-                        <span>${station.icon}</span> ${station.id}. ${station.title}
-                    </button>
-                </li>
-            `).join('');
-        }
-
         function switchStation(stepId) {
             AppState.activeStep = stepId;
-            renderSidebar();
-            
             const station = STATIONS.find(s => s.id === stepId);
+            
+            // Atualiza Sidebar
+            DOM.sidebarStations.innerHTML = STATIONS.map(s => `
+                <li><button onclick="switchStation(${s.id})" class="w-full text-left px-3 py-2 rounded flex gap-2 transition-colors ${AppState.activeStep === s.id ? 'bg-gray-800 text-white font-bold border-l-2 border-blue-500' : 'hover:bg-gray-800/50'}">
+                    <span>${s.icon}</span> ${s.id}. ${s.title}
+                </button></li>
+            `).join('');
+
+            DOM.lblStationTitle.innerHTML = `${station.icon} ESTAÇÃO ${station.id}: ${station.title.toUpperCase()}`;
+            DOM.lblStationDesc.textContent = station.desc;
 
             if (station.path === 'special') {
-                // View: Implementação (Estação 6)
-                DOM.viewEditor.classList.add('hidden');
+                DOM.viewPromptFactory.classList.add('hidden');
                 DOM.viewImplement.classList.remove('hidden');
                 renderImplementation();
             } else {
-                // View: Editor de Texto (Estações 1 a 5)
                 DOM.viewImplement.classList.add('hidden');
-                DOM.viewEditor.classList.remove('hidden');
+                DOM.viewPromptFactory.classList.remove('hidden');
+                DOM.lblArtifactName.textContent = station.file;
                 
-                DOM.lblEditorTitle.innerHTML = `${station.icon} ESTAÇÃO ${station.id}: ${station.title}`;
+                // Restaura Cache de Input
+                DOM.txtUserInput.value = AppState.activeFeature.inputs[stepId] || '';
+                DOM.txtUserInput.placeholder = station.placeholder;
                 
-                if (station.path === '.specify') {
-                    DOM.lblEditorFile.textContent = `/.specify/${station.file}`;
-                    DOM.txtMarkdownEditor.value = AppState.constitutionContent;
-                } else {
-                    DOM.lblEditorFile.textContent = `/specs/${AppState.activeFeature.id}/${station.file}`;
-                    DOM.txtMarkdownEditor.value = AppState.activeFeature.files[station.file];
-                }
+                // Carrega o Artefato Final salvo (se houver)
+                DOM.txtAiResponse.value = station.path === '.specify' ? AppState.constitutionContent : AppState.activeFeature.files[station.file];
+                
+                updatePromptEngine();
             }
         }
 
-        async function saveCurrentEditor() {
+        function updatePromptEngine() {
+            const stepId = AppState.activeStep;
+            const input = DOM.txtUserInput.value.trim();
+            const constitution = sanitizePrompt(AppState.constitutionContent);
+            const spec = sanitizePrompt(AppState.activeFeature.files['spec.md']);
+            const plan = sanitizePrompt(AppState.activeFeature.files['plan.md']);
+            
+            let prompt = "";
+
+            if (stepId === 1) {
+                prompt = `Atue como um Arquiteto de Software Staff. Crie o arquivo constitution.md definindo as regras inquebráveis, padrões de nomenclatura e stack tecnológica baseados nestas premissas:\n\n${input}\n\nFormate a saída exclusivamente em Markdown, sem textos introdutórios.`;
+            } 
+            else if (stepId === 2) {
+                prompt = `Atue como um Product Manager. Transforme a ideia inicial em um Documento de Especificação (spec.md). Inclua o objetivo, as histórias de usuário principais e os critérios de aceite. Respeite estritamente as regras definidas na Constituição abaixo:\n\n[CONSTITUIÇÃO DO PROJETO]\n${constitution}\n\n[IDEIA DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
+            }
+            else if (stepId === 3) {
+                if (input) {
+                    prompt = `Atue como um QA e Product Manager. Com base nas minhas respostas abaixo, atualize e reescreva o Documento de Especificação (spec.md) resolvendo as lacunas e ambiguidades:\n\n[ESPECIFICAÇÃO ATUAL]\n${spec}\n\n[MINHAS RESPOSTAS PARA REFINAMENTO]\n${input}\n\nGere o spec.md atualizado em Markdown.`;
+                } else {
+                    prompt = `Atue como um Engenheiro de Software QA altamente crítico. Leia a especificação abaixo e liste as 5 principais lacunas, ambiguidades ou casos de borda que não foram previstos (ex: estados de erro, falha de rede, limite de dados). Faça perguntas diretas para que eu possa responder e refinar o escopo.\n\n[ESPECIFICAÇÃO]\n${spec}`;
+                }
+            }
+            else if (stepId === 4) {
+                prompt = `Atue como um Arquiteto de Sistemas Sênior. Com base na Especificação, crie o plano técnico (plan.md). Defina a estrutura do DOM, as chaves e esquemas do LocalStorage, o estado da aplicação (AppState) e a assinatura das funções JavaScript necessárias.\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}\n\nFormate a saída exclusivamente em Markdown.`;
+            }
+            else if (stepId === 5) {
+                prompt = `Com base na arquitetura definida, quebre o desenvolvimento em um checklist estritamente sequencial e atômico (tasks.md). Cada tarefa deve ser pequena e isolada.\nUse o formato OBRIGATÓRIO: "- [ ] [T-XXX] Descrição da tarefa".\n\n[CONSTITUIÇÃO]\n${constitution}\n\n[ESPECIFICAÇÃO]\n${spec}\n\n[PLANO TÉCNICO]\n${plan}\n\n[OBSERVAÇÕES DO USUÁRIO]\n${input}`;
+            }
+
+            DOM.txtStationPrompt.value = prompt;
+        }
+
+        DOM.txtUserInput.addEventListener('input', (e) => {
+            AppState.activeFeature.inputs[AppState.activeStep] = e.target.value;
+            updatePromptEngine();
+        });
+
+        // ==========================================
+        // 5. SALVAMENTO E PARSERS (PERSISTÊNCIA)
+        // ==========================================
+        DOM.btnSaveStation.addEventListener('click', async () => {
             const station = STATIONS.find(s => s.id === AppState.activeStep);
-            const content = DOM.txtMarkdownEditor.value;
-            const btnOriginal = DOM.btnSaveFile.innerHTML;
+            const content = DOM.txtAiResponse.value;
+            const btnOriginal = DOM.btnSaveStation.innerHTML;
 
             try {
                 if (station.path === '.specify') {
                     AppState.constitutionContent = content;
-                    const dir = await AppState.directoryHandle.getDirectoryHandle('.specify');
+                    const dir = await getOrCreateDir(AppState.directoryHandle, '.specify');
                     await writeSafe(dir, station.file, content);
                 } else {
                     AppState.activeFeature.files[station.file] = content;
-                    const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
-                    const featureDir = await specsDir.getDirectoryHandle(AppState.activeFeature.id);
+                    const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
+                    const featureDir = await getOrCreateDir(specsDir, AppState.activeFeature.id);
                     await writeSafe(featureDir, station.file, content);
 
-                    // Se editou o tasks.md, re-calcula as tasks lógicas
-                    if (station.file === 'tasks.md') {
-                        AppState.activeFeature.tasksParsed = parseTasks(content);
-                    }
+                    if (station.file === 'tasks.md') AppState.activeFeature.tasksParsed = parseTasks(content);
                 }
+                
+                DOM.btnSaveStation.innerHTML = "✅ ARTEFATO SALVO!";
+                DOM.btnSaveStation.classList.replace('bg-green-700', 'bg-green-500');
+                setTimeout(() => { 
+                    DOM.btnSaveStation.innerHTML = btnOriginal; 
+                    DOM.btnSaveStation.classList.replace('bg-green-500', 'bg-green-700');
+                }, 2000);
+            } catch (err) { alert("Erro ao salvar arquivo."); }
+        });
 
-                DOM.btnSaveFile.innerHTML = "✅ Salvo com sucesso!";
-                setTimeout(() => DOM.btnSaveFile.innerHTML = btnOriginal, 2000);
-            } catch (err) {
-                alert("Erro ao salvar o arquivo.");
-            }
-        }
-
-        // ==========================================
-        // 5. LÓGICA DA ESTAÇÃO 6 (MÃO NA MASSA)
-        // ==========================================
         function parseTasks(text) {
             const lines = text.split('\n');
             const tasks = [];
             const regex = /^-\s*\[([xX\s])\]\s*\[(T-\d+)\]\s*(.+)$/;
-            
             lines.forEach((line, i) => {
                 const match = line.trim().match(regex);
-                if (match) {
-                    tasks.push({ id: match[2], completed: match[1].toLowerCase() === 'x', title: match[3], lineIndex: i });
-                }
+                if (match) tasks.push({ id: match[2], completed: match[1].toLowerCase() === 'x', title: match[3], lineIndex: i });
             });
             return tasks;
         }
 
-        function serializeTasks() {
-            const lines = AppState.activeFeature.files['tasks.md'].split('\n');
-            AppState.activeFeature.tasksParsed.forEach(t => {
-                lines[t.lineIndex] = `- [${t.completed ? 'x' : ' '}] [${t.id}] ${t.title}`;
-            });
-            return lines.join('\n');
-        }
-
+        // ==========================================
+        // 6. ESTAÇÃO 6: IMPLEMENTAÇÃO ITERATIVA
+        // ==========================================
         function renderImplementation() {
             DOM.containerTasks.innerHTML = '';
             let completedCount = 0;
@@ -451,7 +466,7 @@
                 
                 btn.className = `w-full text-left p-3 rounded text-sm border flex gap-3 transition-colors ${
                     task.completed ? 'bg-gray-800/50 border-gray-700/50 text-gray-500' :
-                    isSelected ? 'bg-blue-900/30 border-blue-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                    isSelected ? 'bg-blue-900/30 border-blue-500 text-white shadow-inner' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
                 }`;
                 btn.innerHTML = `<span class="mt-0.5">${task.completed ? '✅' : (isSelected ? '👉' : '⏳')}</span> <span><b>[${task.id}]</b> ${task.title}</span>`;
                 
@@ -466,87 +481,82 @@
 
             if (!AppState.activeTaskId && firstPendingId) AppState.activeTaskId = firstPendingId;
 
-            // Atualiza Barra de Progresso
+            // Barra de Progresso
             const total = AppState.activeFeature.tasksParsed.length;
             const pct = total === 0 ? 0 : Math.round((completedCount / total) * 100);
             DOM.lblProgressText.textContent = `${pct}% (${completedCount}/${total} Tarefas)`;
             DOM.barProgress.style.width = `${pct}%`;
-            
             DOM.barProgress.className = `h-full transition-all duration-500 ${pct === 100 ? 'bg-green-500' : 'bg-blue-600'}`;
             DOM.lblProgressText.className = `font-bold ${pct === 100 ? 'text-green-500' : 'text-blue-400'}`;
 
-            updatePromptGenerator();
+            updateCodePrompt();
         }
 
-        function updatePromptGenerator() {
+        function updateCodePrompt() {
             const task = AppState.activeFeature.tasksParsed.find(t => t.id === AppState.activeTaskId);
             if (!task) {
-                DOM.txtGeneratedPrompt.value = "Nenhuma tarefa pendente selecionada.";
+                DOM.txtGeneratedPromptCode.value = "Nenhuma tarefa pendente selecionada.";
                 DOM.btnCompleteTask.disabled = true;
                 return;
             }
 
             DOM.btnCompleteTask.disabled = false;
-            DOM.btnCompleteTask.textContent = `🎯 CONCLUIR ${task.id}`;
+            DOM.btnCompleteTask.textContent = `🎯 MARCAR [${task.id}] CONCLUÍDA`;
 
             const ai = DOM.selectTargetAI.value;
             let directive = ai === 'copilot-free' ? "Escreva código curto, divida se necessário." : 
                             ai === 'deepseek' ? "Código direto e limpo." : 
                             "RESPONDA APENAS COM CÓDIGO DENTRO DE BLOCOS MARKDOWN.";
 
-            DOM.txtGeneratedPrompt.value = `[DIRETRIZ DA IA]\n${directive}\n\n[CONSTITUIÇÃO DA SOLUÇÃO]\n${AppState.constitutionContent}\n\n[ESPECIFICAÇÃO]\n${AppState.activeFeature.files['spec.md']}\n\n[TAREFA ATÔMICA]\nID: ${task.id}\nDescrição: ${task.title}\n\n[INSTRUÇÃO]\nGere apenas o código para a tarefa ${task.id}.`;
+            DOM.txtGeneratedPromptCode.value = `[DIRETRIZ DA IA]\n${directive}\n\n[CONSTITUIÇÃO DA SOLUÇÃO]\n${sanitizePrompt(AppState.constitutionContent)}\n\n[ESPECIFICAÇÃO]\n${sanitizePrompt(AppState.activeFeature.files['spec.md'])}\n\n[TAREFA ATÔMICA DA VEZ]\nID: ${task.id}\nDescrição: ${task.title}\n\n[INSTRUÇÃO DE SAÍDA]\nGere apenas o código para a tarefa ${task.id}.`;
         }
 
-        async function concludeTask() {
+        DOM.btnCompleteTask.addEventListener('click', async () => {
             const task = AppState.activeFeature.tasksParsed.find(t => t.id === AppState.activeTaskId);
             if (!task) return;
 
             task.completed = true;
-            AppState.activeTaskId = null; // reseta para pegar a próxima
+            AppState.activeTaskId = null;
             
-            AppState.activeFeature.files['tasks.md'] = serializeTasks();
-            const specsDir = await AppState.directoryHandle.getDirectoryHandle('specs');
-            const featureDir = await specsDir.getDirectoryHandle(AppState.activeFeature.id);
+            const lines = AppState.activeFeature.files['tasks.md'].split('\n');
+            AppState.activeFeature.tasksParsed.forEach(t => lines[t.lineIndex] = `- [${t.completed ? 'x' : ' '}] [${t.id}] ${t.title}`);
+            AppState.activeFeature.files['tasks.md'] = lines.join('\n');
+
+            const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
+            const featureDir = await getOrCreateDir(specsDir, AppState.activeFeature.id);
             await writeSafe(featureDir, 'tasks.md', AppState.activeFeature.files['tasks.md']);
 
             renderImplementation();
-        }
+        });
 
-        function copyToClip(text, btn, originalTxt) {
+        // ==========================================
+        // 7. UTILS E CLIPBOARD
+        // ==========================================
+        function copyToClip(text, btnElement, originalTxt) {
             navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = "✅ COPIADO!";
-                setTimeout(() => btn.textContent = originalTxt, 2000);
+                btnElement.textContent = "✅ COPIADO!";
+                setTimeout(() => btnElement.textContent = originalTxt, 2000);
             }).catch(() => {
-                DOM.txtGeneratedPrompt.select();
-                document.execCommand('copy');
-                btn.textContent = "⚠️ COPIADO VIA FALLBACK";
-                setTimeout(() => btn.textContent = originalTxt, 2000);
+                const dummy = document.createElement("textarea");
+                document.body.appendChild(dummy);
+                dummy.value = text; dummy.select(); document.execCommand("copy");
+                document.body.removeChild(dummy);
+                btnElement.textContent = "⚠️ COPIADO VIA FALLBACK";
+                setTimeout(() => btnElement.textContent = originalTxt, 2000);
             });
         }
 
-        // ==========================================
-        // 6. LISTENERS
-        // ==========================================
-        DOM.selectTargetAI.addEventListener('change', async (e) => {
-            AppState.projectConfig.targetAI = e.target.value;
-            if(AppState.directoryHandle) {
-                const specifyDir = await AppState.directoryHandle.getDirectoryHandle('.specify');
-                await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
-            }
-            if(AppState.activeStep === 6) updatePromptGenerator();
-        });
-
-        DOM.selectActiveFeature.addEventListener('change', (e) => {
-            AppState.activeTaskId = null;
-            loadFeatureData(e.target.value);
-        });
-
-        DOM.btnSaveFile.addEventListener('click', saveCurrentEditor);
-        DOM.btnCompleteTask.addEventListener('click', concludeTask);
+        DOM.btnCopyStationPrompt.addEventListener('click', () => copyToClip(DOM.txtStationPrompt.value, DOM.btnCopyStationPrompt, "📋 COPIAR PROMPT PARA A IA"));
+        DOM.btnCopyCodePrompt.addEventListener('click', () => copyToClip(DOM.txtGeneratedPromptCode.value, DOM.btnCopyCodePrompt, "📋 COPIAR"));
+        DOM.btnRescueCut.addEventListener('click', () => copyToClip("A IA cortou o código devido ao limite de saída. Continue exatamente da última linha sem repetir o código anterior.", DOM.btnRescueCut, "🆘 IA CORTOU"));
         
-        DOM.btnCopyPrompt.addEventListener('click', () => copyToClip(DOM.txtGeneratedPrompt.value, DOM.btnCopyPrompt, "📋 COPIAR"));
-        DOM.btnRescueCut.addEventListener('click', () => copyToClip("A IA cortou o código. Continue exatamente de onde parou.", DOM.btnRescueCut, "🆘 A IA CORTOU"));
-
+        DOM.selectTargetAI.addEventListener('change', (e) => {
+            AppState.projectConfig.targetAI = e.target.value;
+            if (AppState.activeStep === 6) updateCodePrompt();
+            else updatePromptEngine();
+        });
+        
+        DOM.selectActiveFeature.addEventListener('change', (e) => { AppState.activeTaskId = null; loadFeatureData(e.target.value); });
     </script>
 </body>
 </html>
