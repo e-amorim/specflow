@@ -45,11 +45,20 @@
             <div id="btn-open-folder" class="border-2 border-dashed border-gray-700 rounded-lg p-6 mb-6 hover:border-blue-500 transition-colors cursor-pointer bg-gray-800/30">
                 <h2 class="text-lg font-semibold text-gray-200 mb-2">📂 CONECTAR PROJETO</h2>
                 <p class="text-gray-400 text-sm mb-6">Selecione a pasta local do repositório para iniciar a esteira.</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg w-full md:w-auto">
+                <button id="btn-pick-folder" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-lg w-full md:w-auto">
                     📂 Selecionar Pasta
                 </button>
             </div>
-            
+
+            <div id="connect-status" class="hidden" role="alert" aria-live="polite"></div>
+
+            <p id="connect-fallback-wrap" class="hidden text-xs text-gray-400 -mt-2 mb-4">
+                <button id="btn-fallback-folder" class="underline hover:text-blue-400 font-medium">Selecionar pasta em modo compatibilidade</button>
+                <span class="block text-gray-500 mt-1">Leitura em memória: os arquivos são baixados ao salvar. Para gravar direto na pasta, use Chrome ou Edge.</span>
+            </p>
+
+            <input id="input-fallback-folder" type="file" webkitdirectory directory multiple class="hidden">
+
             <p class="text-xs text-gray-500 flex items-center justify-center gap-2">
                 <span>🔒</span> Zero Exfiltração. Processamento 100% Client-Side.
             </p>
@@ -210,6 +219,7 @@
 
         const AppState = {
             directoryHandle: null,
+            storageMode: 'fs', // 'fs' (File System Access API) | 'memory' (fallback de compatibilidade)
             activeStep: 1, 
             projectConfig: { activeFeatureId: "", targetAI: "m365-copilot" },
             constitutionContent: '',
@@ -249,16 +259,49 @@
             txtGeneratedPromptCode: document.getElementById('txt-generated-prompt-code'),
             btnCopyCodePrompt: document.getElementById('btn-copy-code-prompt'),
             btnRescueCut: document.getElementById('btn-rescue-cut'),
-            btnCompleteTask: document.getElementById('btn-complete-task')
+            btnCompleteTask: document.getElementById('btn-complete-task'),
+
+            connectStatus: document.getElementById('connect-status'),
+            connectFallbackWrap: document.getElementById('connect-fallback-wrap'),
+            btnPickFolder: document.getElementById('btn-pick-folder'),
+            btnFallbackFolder: document.getElementById('btn-fallback-folder'),
+            inputFallbackFolder: document.getElementById('input-fallback-folder')
         };
 
         // ==========================================
-        // 2. FILE SYSTEM UTILS
+        // 2. FILE SYSTEM UTILS (disco ou memória)
         // ==========================================
-        async function getOrCreateDir(parent, name) { return await parent.getDirectoryHandle(name, { create: true }); }
-        async function getOrCreateFile(dir, name) { return await dir.getFileHandle(name, { create: true }); }
+        function createMemoryDir(name) {
+            const node = {
+                __memory: true,
+                name,
+                files: new Map(),
+                dirs: new Map(),
+                async *values() {
+                    for (const fileName of node.files.keys()) yield { kind: 'file', name: fileName };
+                    for (const child of node.dirs.values()) yield { kind: 'directory', name: child.name };
+                }
+            };
+            return node;
+        }
+
+        function isMemoryDir(target) { return Boolean(target && target.__memory); }
+
+        async function getOrCreateDir(parent, name) {
+            if (isMemoryDir(parent)) {
+                if (!parent.dirs.has(name)) parent.dirs.set(name, createMemoryDir(name));
+                return parent.dirs.get(name);
+            }
+            return await parent.getDirectoryHandle(name, { create: true });
+        }
+
+        async function getOrCreateFile(dir, name) {
+            if (isMemoryDir(dir)) throw new Error('Operação de arquivo inválida no modo memória.');
+            return await dir.getFileHandle(name, { create: true });
+        }
         
         async function readSafe(dir, name, defaultContent = "") {
+            if (isMemoryDir(dir)) return dir.files.has(name) ? dir.files.get(name) : defaultContent;
             try {
                 const fileHandle = await getOrCreateFile(dir, name);
                 const file = await fileHandle.getFile();
@@ -267,6 +310,7 @@
         }
 
         async function writeSafe(dir, name, content) {
+            if (isMemoryDir(dir)) { dir.files.set(name, content); return; }
             const fileHandle = await getOrCreateFile(dir, name);
             const writable = await fileHandle.createWritable();
             await writable.write(content);
@@ -281,47 +325,168 @@
         // ==========================================
         // 3. INICIALIZAÇÃO DO PROJETO
         // ==========================================
-        document.getElementById('btn-open-folder').addEventListener('click', async () => {
+        function showConnectStatus(message, kind = 'error') {
+            const palette = {
+                error: 'bg-red-950/50 border-red-800 text-red-300',
+                warn: 'bg-yellow-950/50 border-yellow-800 text-yellow-300',
+                info: 'bg-blue-950/50 border-blue-800 text-blue-300'
+            };
+            DOM.connectStatus.className = `text-left text-sm rounded-lg border px-3 py-2 mb-4 ${palette[kind] || palette.error}`;
+            DOM.connectStatus.textContent = message;
+        }
+
+        function clearConnectStatus() {
+            DOM.connectStatus.className = 'hidden';
+            DOM.connectStatus.textContent = '';
+        }
+
+        function revealFallbackOption() {
+            DOM.connectFallbackWrap.classList.remove('hidden');
+        }
+
+        function describeConnectError(error) {
+            if (error && error.name === 'AbortError') {
+                return { kind: 'warn', message: 'A seleção não foi concluída. Se o seletor de pastas não abriu, use o modo compatibilidade abaixo.' };
+            }
+            if (error && (error.name === 'SecurityError' || error.name === 'NotAllowedError')) {
+                return { kind: 'error', message: 'O navegador bloqueou o acesso à pasta (comum em previews embutidos, como o do VS Code, ou ao abrir o arquivo via file://). Abra no Chrome/Edge servindo o arquivo por http://localhost (ex.: Live Server) ou use o modo compatibilidade abaixo.' };
+            }
+            return { kind: 'error', message: `Falha ao abrir a pasta (${(error && error.name) || 'erro'}): ${(error && error.message) || error}` };
+        }
+
+        async function initProject(rootHandle) {
+            AppState.directoryHandle = rootHandle;
+            DOM.lblFolderName.textContent = rootHandle.name + (AppState.storageMode === 'memory' ? ' (memória)' : '');
+
+            const specifyDir = await getOrCreateDir(rootHandle, '.specify');
+            const specsDir = await getOrCreateDir(rootHandle, 'specs');
+
+            AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md');
+
+            const configRaw = await readSafe(specifyDir, 'config.json');
+            let parsedConfig = null;
+            if (configRaw.trim()) {
+                try { parsedConfig = JSON.parse(configRaw); } catch (e) { parsedConfig = null; }
+            }
+            const hasValidConfig = Boolean(parsedConfig) && typeof parsedConfig === 'object' && !Array.isArray(parsedConfig);
+            AppState.projectConfig = {
+                activeFeatureId: '',
+                targetAI: 'm365-copilot',
+                ...(hasValidConfig ? parsedConfig : {})
+            };
+            if (!hasValidConfig) {
+                await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
+            }
+            DOM.selectTargetAI.value = AppState.projectConfig.targetAI || 'm365-copilot';
+
+            AppState.features = [];
+            for await (const entry of specsDir.values()) {
+                if (entry.kind === 'directory') AppState.features.push(entry.name);
+            }
+
+            if (AppState.features.length === 0) {
+                await getOrCreateDir(specsDir, '001-nova-feature');
+                AppState.features.push('001-nova-feature');
+            }
+
+            DOM.selectActiveFeature.innerHTML = AppState.features.map(f => `<option value="${f}">${f}</option>`).join('');
+            const activeId = AppState.features.includes(AppState.projectConfig.activeFeatureId) ? AppState.projectConfig.activeFeatureId : AppState.features[0];
+            DOM.selectActiveFeature.value = activeId;
+            
+            await loadFeatureData(activeId);
+
+            DOM.btnSaveStation.innerHTML = AppState.storageMode === 'memory' ? '💾 SALVAR (DOWNLOAD)' : '💾 SALVAR NO DISCO';
+
+            clearConnectStatus();
+            DOM.connectFallbackWrap.classList.add('hidden');
+            DOM.screenConnect.classList.add('hidden');
+            DOM.screenMain.classList.remove('hidden');
+            setTimeout(() => DOM.screenMain.classList.remove('opacity-0'), 50);
+        }
+
+        async function initProjectFromFiles(fileList) {
+            const allFiles = Array.from(fileList || []);
+            const rootName = allFiles.length && allFiles[0].webkitRelativePath
+                ? allFiles[0].webkitRelativePath.split('/')[0]
+                : 'projeto';
+
+            const root = createMemoryDir(rootName);
+            const relevant = allFiles.filter(file => {
+                const relative = (file.webkitRelativePath || file.name).split('/').slice(1).join('/');
+                return relative.startsWith('.specify/') || relative.startsWith('specs/');
+            });
+
+            for (const file of relevant) {
+                const parts = (file.webkitRelativePath || file.name).split('/').slice(1);
+                let dir = root;
+                for (const part of parts.slice(0, -1)) dir = await getOrCreateDir(dir, part);
+                dir.files.set(parts[parts.length - 1], await file.text());
+            }
+
+            AppState.storageMode = 'memory';
+            await initProject(root);
+        }
+
+        async function pickFolder() {
+            if (DOM.btnPickFolder.disabled) return;
+
+            if (!window.showDirectoryPicker) {
+                showConnectStatus('Este navegador não expõe a API de acesso a pastas. Use o modo compatibilidade abaixo.', 'warn');
+                revealFallbackOption();
+                return;
+            }
+
+            const originalLabel = DOM.btnPickFolder.textContent;
+            clearConnectStatus();
+            DOM.btnPickFolder.disabled = true;
+            DOM.btnPickFolder.textContent = '⏳ Abrindo seletor...';
+            DOM.btnPickFolder.classList.add('opacity-60', 'cursor-wait');
+
             try {
-                if (!window.showDirectoryPicker) return alert('Navegador incompatível com FileSystem Access API.');
-                
-                AppState.directoryHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                DOM.lblFolderName.textContent = AppState.directoryHandle.name;
+                const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                AppState.storageMode = 'fs';
+                await initProject(handle);
+            } catch (error) {
+                console.error("Erro na inicialização:", error);
+                const info = describeConnectError(error);
+                showConnectStatus(info.message, info.kind);
+                revealFallbackOption();
+            } finally {
+                DOM.btnPickFolder.disabled = false;
+                DOM.btnPickFolder.textContent = originalLabel;
+                DOM.btnPickFolder.classList.remove('opacity-60', 'cursor-wait');
+            }
+        }
 
-                const specifyDir = await getOrCreateDir(AppState.directoryHandle, '.specify');
-                const specsDir = await getOrCreateDir(AppState.directoryHandle, 'specs');
+        document.getElementById('btn-open-folder').addEventListener('click', pickFolder);
 
-                AppState.constitutionContent = await readSafe(specifyDir, 'constitution.md');
-                let configRaw = await readSafe(specifyDir, 'config.json');
-                
-                if (!configRaw.trim()) {
-                    await writeSafe(specifyDir, 'config.json', JSON.stringify(AppState.projectConfig, null, 2));
-                } else {
-                    AppState.projectConfig = JSON.parse(configRaw);
-                }
-                DOM.selectTargetAI.value = AppState.projectConfig.targetAI || 'm365-copilot';
+        DOM.btnFallbackFolder.addEventListener('click', () => DOM.inputFallbackFolder.click());
 
-                AppState.features = [];
-                for await (const entry of specsDir.values()) {
-                    if (entry.kind === 'directory') AppState.features.push(entry.name);
-                }
+        DOM.inputFallbackFolder.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
 
-                if (AppState.features.length === 0) {
-                    await getOrCreateDir(specsDir, '001-nova-feature');
-                    AppState.features.push('001-nova-feature');
-                }
+            const originalLabel = DOM.btnPickFolder.textContent;
+            DOM.btnPickFolder.disabled = true;
+            DOM.btnPickFolder.textContent = '⏳ Lendo pasta...';
 
-                DOM.selectActiveFeature.innerHTML = AppState.features.map(f => `<option value="${f}">${f}</option>`).join('');
-                const activeId = AppState.features.includes(AppState.projectConfig.activeFeatureId) ? AppState.projectConfig.activeFeatureId : AppState.features[0];
-                DOM.selectActiveFeature.value = activeId;
-                
-                await loadFeatureData(activeId);
-
-                DOM.screenConnect.classList.add('hidden');
-                DOM.screenMain.classList.remove('hidden');
-                setTimeout(() => DOM.screenMain.classList.remove('opacity-0'), 50);
-            } catch (error) { console.error("Erro na inicialização:", error); }
+            try {
+                await initProjectFromFiles(files);
+            } catch (error) {
+                console.error("Erro na inicialização (modo compatibilidade):", error);
+                showConnectStatus(`Falha ao ler a pasta (${error.name || 'erro'}): ${error.message || error}`, 'error');
+                revealFallbackOption();
+            } finally {
+                DOM.btnPickFolder.disabled = false;
+                DOM.btnPickFolder.textContent = originalLabel;
+                e.target.value = '';
+            }
         });
+
+        if (!window.showDirectoryPicker) {
+            showConnectStatus('Seu navegador não suporta a API de acesso a pastas. Use o modo compatibilidade abaixo ou abra o arquivo no Chrome/Edge.', 'warn');
+            revealFallbackOption();
+        }
 
         async function loadFeatureData(featureId) {
             AppState.activeFeature.id = featureId;
@@ -422,14 +587,19 @@
 
                     if (station.file === 'tasks.md') AppState.activeFeature.tasksParsed = parseTasks(content);
                 }
+
+                if (AppState.storageMode === 'memory') downloadText(station.file, content);
                 
-                DOM.btnSaveStation.innerHTML = "✅ ARTEFATO SALVO!";
+                DOM.btnSaveStation.innerHTML = AppState.storageMode === 'memory' ? "✅ SALVO (DOWNLOAD)" : "✅ ARTEFATO SALVO!";
                 DOM.btnSaveStation.classList.replace('bg-green-700', 'bg-green-500');
                 setTimeout(() => { 
                     DOM.btnSaveStation.innerHTML = btnOriginal; 
                     DOM.btnSaveStation.classList.replace('bg-green-500', 'bg-green-700');
                 }, 2000);
-            } catch (err) { alert("Erro ao salvar arquivo."); }
+            } catch (err) {
+                console.error("Erro ao salvar artefato:", err);
+                alert(`Erro ao salvar arquivo: ${err.message || err}`);
+            }
         });
 
         function parseTasks(text) {
@@ -525,8 +695,19 @@
         // ==========================================
         // 7. UTILS E CLIPBOARD
         // ==========================================
-        function copyToClip(text, btnElement, originalTxt) {
-            navigator.clipboard.writeText(text).then(() => {
+        function downloadText(filename, content) {
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function copyToClip(text, btnElement, originalTxt) {            navigator.clipboard.writeText(text).then(() => {
                 btnElement.textContent = "✅ COPIADO!";
                 setTimeout(() => btnElement.textContent = originalTxt, 2000);
             }).catch(() => {
